@@ -99,7 +99,7 @@ public static class Startup
     public static void Set(bool enabled)
     {
         using var key = Registry.CurrentUser.CreateSubKey(Key);
-        if (enabled) key.SetValue("IbraAdawat", $"\"{Environment.ProcessPath}\"");
+        if (enabled) key.SetValue("IbraAdawat", $"\"{Environment.ProcessPath}\" --background");
         else key.DeleteValue("IbraAdawat", false);
     }
 }

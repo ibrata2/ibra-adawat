@@ -24,9 +24,10 @@ public static class Program
         {
             // Started from the right-click menu while the app runs: pass the files over and leave.
             if (opened.Length > 0) RightClick.Forward(opened);
+            else if (!args.Contains("--background")) RightClick.Forward([RightClick.ShowWindowSignal]);
             return 0;
         }
-        var main = new AdawatApp(opened);
+        var main = new AdawatApp(opened, args.Contains("--background"));
         return main.Run();
     }
 }
@@ -40,9 +41,12 @@ public sealed class AdawatApp : Application
     private readonly string[] _opened;
     private bool _dragsStarted;
 
-    public AdawatApp(string[]? opened = null)
+    private readonly bool _background;
+
+    public AdawatApp(string[]? opened = null, bool background = false)
     {
         _opened = opened ?? [];
+        _background = background;
         ShutdownMode = ShutdownMode.OnExplicitShutdown;
         DispatcherUnhandledException += (_, e) =>
         {
@@ -71,7 +75,8 @@ public sealed class AdawatApp : Application
         }));
         _tray = new Tray();
         if (_opened.Length > 0) RightClick.Add(_opened);
-        else if (!Settings.Current.HasSeenWelcome)
+        else if (!_background) MainWindow.Present();
+        if (!Settings.Current.HasSeenWelcome && _opened.Length == 0)
         {
             Settings.Current.HasSeenWelcome = true;
             Settings.Current.Save();

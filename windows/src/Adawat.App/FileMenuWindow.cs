@@ -76,6 +76,20 @@ public sealed class FileMenuWindow : Window
         DockPanel.SetDock(line, Dock.Top);
         root.Children.Add(line);
 
+        var open = new Border { Padding = new Thickness(14, 9, 14, 11), Cursor = Cursors.Hand, Background = Brushes.Transparent };
+        var openRow = new StackPanel { Orientation = Orientation.Horizontal };
+        openRow.Children.Add(UI.Icon("\uE8A7", 12, Theme.Accent));
+        openRow.Children.Add(UI.Text("Open in the IBRA Adawat window", 12, color: Theme.Muted).Pad(8, 0));
+        open.Child = openRow;
+        open.MouseEnter += (_, _) => open.Background = Theme.ButtonHover;
+        open.MouseLeave += (_, _) => open.Background = Brushes.Transparent;
+        open.MouseLeftButtonUp += (_, _) => { var f = _files.ToArray(); CloseMenu(); MainWindow.Present(f); };
+        var openLine = new Border { Height = 1, Background = Theme.Hairline };
+        DockPanel.SetDock(open, Dock.Bottom);
+        DockPanel.SetDock(openLine, Dock.Bottom);
+        root.Children.Add(open);
+        root.Children.Add(openLine);
+
         root.Children.Add(new ScrollViewer
         {
             Content = _list, MaxHeight = 460, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, Padding = new Thickness(6),

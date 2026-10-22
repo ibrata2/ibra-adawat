@@ -16,6 +16,8 @@ namespace Adawat.App;
 public static partial class RightClick
 {
     private const string PipeName = "IbraAdawat.Open";
+    /// <summary>Sent instead of a file when the app is started again from its shortcut: show the main window.</summary>
+    public const string ShowWindowSignal = "::show::";
     private const string Verb = "IbraAdawat";
     private const string Win11ClassicKey = @"Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}";
 
@@ -149,6 +151,8 @@ public static partial class RightClick
                     using var reader = new StreamReader(server, Encoding.UTF8);
                     var text = reader.ReadToEnd();
                     var files = text.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+                    if (files.Contains(ShowWindowSignal)) dispatcher.BeginInvoke(() => MainWindow.Present());
+                    files = files.Where(f => f != ShowWindowSignal).ToArray();
                     if (files.Length > 0) dispatcher.BeginInvoke(() => Add(files));
                 }
                 catch (Exception e)

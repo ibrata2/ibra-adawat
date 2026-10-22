@@ -70,7 +70,7 @@ ar.Launch=تشغيل IBRA أدوات
 
 [Tasks]
 Name: "startup"; Description: "{cm:StartWithWindows}"; GroupDescription: "{cm:Extras}"
-Name: "desktopicon"; Description: "{cm:DesktopIcon}"; GroupDescription: "{cm:Extras}"; Flags: unchecked
+Name: "desktopicon"; Description: "{cm:DesktopIcon}"; GroupDescription: "{cm:Extras}"
 
 [Files]
 Source: "{#Source}\*"; DestDir: "{app}"; Excludes: "*.pdb,Microsoft.Web.WebView2.*.xml"; Flags: ignoreversion recursesubdirs createallsubdirs
@@ -89,7 +89,7 @@ Name: "{autodesktop}\IBRA أدوات"; Filename: "{app}\IbraAdawat.exe"; Tasks: 
 
 [Registry]
 ; The same value the app's own "Start Adawat when Windows starts" setting writes.
-Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "IbraAdawat"; ValueData: """{app}\IbraAdawat.exe"""; Tasks: startup; Flags: uninsdeletevalue
+Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "IbraAdawat"; ValueData: """{app}\IbraAdawat.exe"" --background"; Tasks: startup; Flags: uninsdeletevalue
 
 ; Right-click menu for files and folders (the app also refreshes these each time it starts).
 Root: HKCU; Subkey: "Software\Classes\*\shell\IbraAdawat"; ValueType: string; ValueName: "MUIVerb"; ValueData: "IBRA أدوات"; Flags: uninsdeletekey

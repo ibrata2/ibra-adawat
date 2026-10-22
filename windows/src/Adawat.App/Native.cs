@@ -113,4 +113,11 @@ internal static partial class Native
         var preference = DWMWCP_ROUND;
         DwmSetWindowAttribute(window, DWMWA_WINDOW_CORNER_PREFERENCE, ref preference, sizeof(int));
     }
+
+    /// <summary>A dark or light title bar to match Windows' app mode.</summary>
+    public static void MatchTitleBar(IntPtr window, bool dark)
+    {
+        var value = dark ? 1 : 0;
+        DwmSetWindowAttribute(window, DWMWA_USE_IMMERSIVE_DARK_MODE, ref value, sizeof(int));
+    }
 }

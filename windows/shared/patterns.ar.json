@@ -136,5 +136,7 @@
  "Enlarging failed. The graphics card driver may need an update: {1}": "فشل التكبير. يمكن تعريف كارت الشاشة يحتاج تحديث: {1}",
  "{1} pictures with {2}": "{1} صور ويه {2}",
  "{1} pictures, no song": "{1} صور بدون أغنية",
- "{1} s": "{1} ثا"
+ "{1} s": "{1} ثا",
+ "For the {1} selected": "للـ {1} المحددة",
+ "For all {1} files": "لكل الـ {1} ملفات"
 }
