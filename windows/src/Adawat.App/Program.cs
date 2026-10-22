@@ -75,7 +75,7 @@ public sealed class AdawatApp : Application
         }));
         _tray = new Tray();
         if (_opened.Length > 0) RightClick.Add(_opened);
-        else if (!_background) MainWindow.Present();
+        else if (!_background) HomeWindow.Present();
         if (!Settings.Current.HasSeenWelcome && _opened.Length == 0)
         {
             Settings.Current.HasSeenWelcome = true;

@@ -21,7 +21,7 @@ public sealed class Tray : IDisposable
             ContextMenu = Menu(),
             NoLeftClickDelay = true,
         };
-        _icon.TrayLeftMouseUp += (_, _) => MainWindow.Present();
+        _icon.TrayLeftMouseUp += (_, _) => HomeWindow.Present();
         _icon.ForceCreate(enablesEfficiencyMode: false);
     }
 
@@ -40,7 +40,7 @@ public sealed class Tray : IDisposable
         var hint = new MenuItem { Header = L10n.T("Right-click any file and choose IBRA Adawat"), IsEnabled = false };
         menu.Items.Add(hint);
         menu.Items.Add(new Separator());
-        menu.Items.Add(Item("Open IBRA Adawat", () => MainWindow.Present(), "\uE8A7"));
+        menu.Items.Add(Item("Open IBRA Adawat", () => HomeWindow.Present(), "\uE8A7"));
         menu.Items.Add(Item("New Float", () => Floats.Create([]), ""));
         var closeFloats = Item("Close All Floats", Floats.CloseAll, "");
         menu.Items.Add(closeFloats);
@@ -66,7 +66,7 @@ public sealed class Tray : IDisposable
         menu.Items.Add(Item("Welcome Guide…", WelcomeWindow.Present, ""));
         menu.Items.Add(Item("Settings…", SettingsWindow.Present, ""));
         menu.Items.Add(new Separator());
-        menu.Items.Add(Item("Exit Adawat", () => { MainWindow.Quit(); Application.Current.Shutdown(); }, ""));
+        menu.Items.Add(Item("Exit Adawat", () => { HomeWindow.Quit(); Application.Current.Shutdown(); }, ""));
         menu.Opened += (_, _) => closeFloats.IsEnabled = Floats.Any;
         return menu;
     }

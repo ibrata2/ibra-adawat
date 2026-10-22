@@ -83,7 +83,7 @@ public sealed class FileMenuWindow : Window
         open.Child = openRow;
         open.MouseEnter += (_, _) => open.Background = Theme.ButtonHover;
         open.MouseLeave += (_, _) => open.Background = Brushes.Transparent;
-        open.MouseLeftButtonUp += (_, _) => { var f = _files.ToArray(); CloseMenu(); MainWindow.Present(f); };
+        open.MouseLeftButtonUp += (_, _) => { var f = _files.ToArray(); CloseMenu(); HomeWindow.Present(f); };
         var openLine = new Border { Height = 1, Background = Theme.Hairline };
         DockPanel.SetDock(open, Dock.Bottom);
         DockPanel.SetDock(openLine, Dock.Bottom);

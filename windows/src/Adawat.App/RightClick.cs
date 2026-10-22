@@ -151,7 +151,7 @@ public static partial class RightClick
                     using var reader = new StreamReader(server, Encoding.UTF8);
                     var text = reader.ReadToEnd();
                     var files = text.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-                    if (files.Contains(ShowWindowSignal)) dispatcher.BeginInvoke(() => MainWindow.Present());
+                    if (files.Contains(ShowWindowSignal)) dispatcher.BeginInvoke(() => HomeWindow.Present());
                     files = files.Where(f => f != ShowWindowSignal).ToArray();
                     if (files.Length > 0) dispatcher.BeginInvoke(() => Add(files));
                 }

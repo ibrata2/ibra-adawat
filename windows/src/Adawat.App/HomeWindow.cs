@@ -14,9 +14,9 @@ namespace Adawat.App;
 /// on the right. With files selected in the list, the choice applies to those; otherwise to every file in the list.
 /// Closing it hides it; the app stays next to the clock for the right-click menu.
 /// </summary>
-public sealed class MainWindow : Window
+public sealed class HomeWindow : Window
 {
-    private static MainWindow? _shared;
+    private static HomeWindow? _shared;
 
     private readonly ObservableCollection<string> _files = [];
     private readonly ListBox _list = new();
@@ -32,7 +32,7 @@ public sealed class MainWindow : Window
     /// <summary>Shows the window (creating it once) and adds <paramref name="files"/> to it.</summary>
     public static void Present(IEnumerable<string>? files = null)
     {
-        _shared ??= new MainWindow();
+        _shared ??= new HomeWindow();
         if (files != null) _shared.Add(files);
         if (!_shared.IsVisible) _shared.Show();
         if (_shared.WindowState == WindowState.Minimized) _shared.WindowState = WindowState.Normal;
@@ -46,7 +46,7 @@ public sealed class MainWindow : Window
         if (_shared != null) { _shared._quitting = true; _shared.Close(); }
     }
 
-    private MainWindow()
+    private HomeWindow()
     {
         Title = L10n.T("IBRA Adawat");
         Width = 920;
