@@ -1,0 +1,15 @@
+<Project>
+  <!-- Shared by every Adawat for Linux project. Builds on Linux or on a Mac with the .NET 10 SDK. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <RuntimeIdentifiers>linux-x64;linux-arm64</RuntimeIdentifiers>
+    <Version>1.1.0</Version>
+    <Company>Motalim</Company>
+    <Product>Adawat</Product>
+    <Copyright>Motalim · GPL v3</Copyright>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+  </PropertyGroup>
+</Project>

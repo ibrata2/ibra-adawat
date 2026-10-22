@@ -1,0 +1,15 @@
+[Desktop Entry]
+Type=Application
+Name=Adawat
+Name[ar]=أدوات
+GenericName=File converter
+GenericName[ar]=محوّل الملفات
+Comment=Convert, compress and edit any file while you drag it
+Comment[ar]=حوّل واضغط وعدّل أي ملف وأنت تسحبه
+Exec=adawat %F
+Icon=adawat
+Terminal=false
+Categories=Utility;Graphics;AudioVideo;
+Keywords=convert;compress;image;video;audio;pdf;qr;
+StartupWMClass=adawat
+StartupNotify=false

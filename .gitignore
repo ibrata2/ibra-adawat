@@ -1,0 +1,13 @@
+.build/
+build/
+.DS_Store
+.iwork-test/
+build-ffmpeg.log
+
+# Windows build output
+bin/
+obj/
+*.log
+
+# Linux build output
+linux/build/

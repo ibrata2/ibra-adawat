@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="src/Adawat.Core/Adawat.Core.csproj" />
+  <Project Path="src/Adawat.App/Adawat.App.csproj" />
+  <Project Path="src/Adawat.Cli/Adawat.Cli.csproj" />
+</Solution>

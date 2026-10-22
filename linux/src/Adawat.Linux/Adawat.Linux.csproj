@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- The Linux app: tray icon, drag watching (X11, or the GNOME Shell extension on Wayland), the wheel, Floats and every
+       tool window, drawn with Avalonia. Conversions and tools come from the shared Adawat.Core. -->
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <AssemblyName>adawat</AssemblyName>
+    <RootNamespace>Adawat.Linux</RootNamespace>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../../windows/src/Adawat.Core/Adawat.Core.csproj" />
+    <PackageReference Include="Avalonia" Version="12.1.4" />
+    <PackageReference Include="Avalonia.Desktop" Version="12.1.4" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.4" />
+    <PackageReference Include="Tmds.DBus.Protocol" Version="0.95.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- PDFtoImage brings Skia's self-contained Linux library too; Avalonia's, which uses the system's fonts, is the one kept. -->
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.119.2" ExcludeAssets="all" />
+  </ItemGroup>
+  <ItemGroup>
+    <AvaloniaResource Include="../../assets/fonts/*.ttf;../../assets/fonts/*.otf" Link="Assets/fonts/%(Filename)%(Extension)" />
+    <AvaloniaResource Include="../../assets/icons/*.png" Link="Assets/icons/%(Filename)%(Extension)" />
+    <!-- Installed next to the app: the GNOME Shell extension (copied for the user on first run) and the face detector
+         (tools/fetch-models.sh). -->
+    <None Include="../../gnome-extension/**" LinkBase="gnome-extension" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <None Include="../../build/models/*.onnx" LinkBase="models" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

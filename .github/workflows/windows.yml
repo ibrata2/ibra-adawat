@@ -1,0 +1,112 @@
+name: Build IBRA Adawat for Windows
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: 1
+      DOTNET_NOLOGO: 1
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Publish the app
+        working-directory: windows
+        run: |
+          $out = "build/publish/app-x64"
+          foreach ($p in "Adawat.App", "Adawat.Cli") {
+            dotnet publish "src/$p/$p.csproj" -f net10.0-windows10.0.22621.0 -c Release -r win-x64 --self-contained -p:DebugType=none -o $out
+            if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          }
+          if (!(Test-Path "$out/IbraAdawat.exe")) { throw "IbraAdawat.exe was not built" }
+
+      - name: Bundle ffmpeg, whisper, yt-dlp and Real-ESRGAN
+        working-directory: windows
+        run: |
+          $tools = "build/publish/app-x64/tools"
+          New-Item -ItemType Directory -Force $tools, dl | Out-Null
+
+          # ffmpeg + ffprobe (BtbN GPL build: libass, harfbuzz, libwebp, x264)
+          gh release download latest -R BtbN/FFmpeg-Builds -p "ffmpeg-master-latest-win64-gpl.zip" -D dl
+          Expand-Archive dl/ffmpeg-master-latest-win64-gpl.zip dl/ffmpeg
+          Get-ChildItem dl/ffmpeg -Recurse -Include ffmpeg.exe, ffprobe.exe | Copy-Item -Destination $tools
+          Get-ChildItem dl/ffmpeg -Recurse -Filter LICENSE.txt | Select-Object -First 1 | Copy-Item -Destination "$tools/ffmpeg-LICENSE.txt"
+
+          # whisper.cpp (speech to text, CPU build)
+          gh release download -R ggml-org/whisper.cpp -p "whisper-bin-x64.zip" -D dl
+          Expand-Archive dl/whisper-bin-x64.zip dl/whisper
+          $cli = Get-ChildItem dl/whisper -Recurse -Filter whisper-cli.exe | Select-Object -First 1
+          if (!$cli) { throw "whisper-cli.exe not found in the whisper.cpp release" }
+          Copy-Item $cli.FullName $tools
+          Get-ChildItem $cli.DirectoryName -Filter *.dll | Copy-Item -Destination $tools
+
+          # yt-dlp (download from a link)
+          gh release download -R yt-dlp/yt-dlp -p "yt-dlp.exe" -D $tools
+
+          # Real-ESRGAN ncnn Vulkan (AI enlarge on the graphics card)
+          gh release download v0.2.5.0 -R xinntao/Real-ESRGAN -p "realesrgan-ncnn-vulkan-20220424-windows.zip" -D dl
+          Expand-Archive dl/realesrgan-ncnn-vulkan-20220424-windows.zip dl/esrgan
+          $exe = Get-ChildItem dl/esrgan -Recurse -Filter realesrgan-ncnn-vulkan.exe | Select-Object -First 1
+          New-Item -ItemType Directory -Force "$tools/realesrgan/models" | Out-Null
+          Copy-Item $exe.FullName "$tools/realesrgan"
+          Get-ChildItem $exe.DirectoryName -Filter *.dll | Copy-Item -Destination "$tools/realesrgan"
+          Get-ChildItem $exe.DirectoryName -Recurse -Filter "realesrgan-x4plus.*" | Where-Object { $_.Name -notlike "*anime*" } | Copy-Item -Destination "$tools/realesrgan/models"
+
+          Get-ChildItem $tools -Recurse | Select-Object FullName, Length | Format-Table -AutoSize
+
+      - name: Smoke test the bundled tools
+        continue-on-error: true
+        working-directory: windows/build/publish/app-x64
+        run: |
+          ./tools/ffmpeg.exe -hide_banner -version | Select-Object -First 1
+          ./tools/ffmpeg.exe -hide_banner -filters | Select-String -Pattern " subtitles | drawtext | xfade "
+          ./tools/whisper-cli.exe --help 2>&1 | Select-Object -First 3
+          ./tools/yt-dlp.exe --version
+          ./ibra-adawat-cli.exe doctor
+
+      - name: Make sure Inno Setup has Arabic
+        run: |
+          $inno = "${env:ProgramFiles(x86)}\Inno Setup 6"
+          if (!(Test-Path "$inno\ISCC.exe")) { choco install innosetup -y --no-progress; }
+          if (!(Test-Path "$inno\Languages\Arabic.isl")) {
+            Invoke-WebRequest "https://raw.githubusercontent.com/jrsoftware/issrc/main/Files/Languages/Unofficial/Arabic.isl" -OutFile "$inno\Languages\Arabic.isl"
+          }
+
+      - name: Build the installer
+        working-directory: windows/installer
+        run: |
+          $version = "1.1.${{ github.run_number }}"
+          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" /Q /DArch=x64 /DAppVersion=$version "/DSource=..\build\publish\app-x64" Adawat.iss
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          Get-FileHash ..\build\installer\IBRA-Adawat-Setup-x64.exe -Algorithm SHA256 | Format-List
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: IBRA-Adawat-Setup-x64
+          path: windows/build/installer/IBRA-Adawat-Setup-x64.exe
+
+      - name: Publish a release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.1.${{ github.run_number }}
+          name: IBRA أدوات 1.1.${{ github.run_number }}
+          make_latest: true
+          files: windows/build/installer/IBRA-Adawat-Setup-x64.exe
+          body: |
+            IBRA أدوات — نسخة مطوّرة من [أدوات](https://github.com/motalim-ai/adawat) (GPL v3).
+            حمّل **IBRA-Adawat-Setup-x64.exe** وشغّله. إذا طلع تحذير Windows: More info ← Run anyway.

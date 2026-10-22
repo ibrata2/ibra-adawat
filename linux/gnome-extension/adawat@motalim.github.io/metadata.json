@@ -1,0 +1,8 @@
+{
+  "uuid": "adawat@motalim.github.io",
+  "name": "Adawat",
+  "description": "Lets Adawat open its wheel while you drag files on GNOME under Wayland: it tells the Adawat app when Shift, Ctrl or Alt is pressed during a drag, and where the pointer is. Nothing else is read or sent anywhere.",
+  "shell-version": ["45", "46", "47", "48", "49"],
+  "url": "https://github.com/motalim-ai/adawat",
+  "version": 1
+}

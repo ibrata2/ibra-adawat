@@ -1,0 +1,4 @@
+#!/bin/sh
+# The AppImage's entry point: Adawat lives in usr/lib/adawat with its ffmpeg in tools/.
+HERE="$(dirname "$(readlink -f "$0")")"
+exec "$HERE/usr/lib/adawat/adawat" "$@"

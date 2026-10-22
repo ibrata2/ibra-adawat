@@ -1,0 +1,25 @@
+<Project>
+  <!-- Shared by every Adawat for Windows project. Builds on macOS too (EnableWindowsTargeting), runs on Windows 10 1809+.
+       Adawat.Core and adawat-cli also build for plain net10.0, which the Linux app (linux/) uses. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows10.0.22621.0</TargetFramework>
+    <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <RuntimeIdentifiers>win-arm64;win-x64</RuntimeIdentifiers>
+    <RuntimeIdentifiers Condition="'$(TargetFramework)' == 'net10.0'">linux-x64;linux-arm64</RuntimeIdentifiers>
+    <Version>1.1.0</Version>
+    <InformationalVersion>IBRA 1.0 (based on Adawat 1.1.0)</InformationalVersion>
+    <Company>IBRA (Ibrahim Rosem) — based on Adawat by Motalim</Company>
+    <Product>IBRA Adawat</Product>
+    <Copyright>Motalim · GPL v3</Copyright>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <NoWarn>$(NoWarn);CA1416</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)GlobalUsings.cs" Link="GlobalUsings.cs" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- adawat.exe: every tool from the command line, and the test modes used to check a build. Also built for Linux. -->
+  <PropertyGroup>
+    <TargetFramework></TargetFramework>
+    <TargetFrameworks>net10.0-windows10.0.22621.0;net10.0</TargetFrameworks>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>ibra-adawat-cli</AssemblyName>
+    <RootNamespace>Adawat.Cli</RootNamespace>
+    <UseWPF Condition="$(TargetFramework.Contains('-windows'))">true</UseWPF>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Adawat.Core\Adawat.Core.csproj" />
+  </ItemGroup>
+</Project>
