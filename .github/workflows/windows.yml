@@ -54,14 +54,24 @@ jobs:
           $tools = "build/publish/app-x64/tools"
           try {
             # The newest release that ships Windows binaries (some releases have none).
-            $releases = Invoke-RestMethod "https://api.github.com/repos/ggml-org/whisper.cpp/releases?per_page=30" -Headers @{ Authorization = "Bearer $env:GH_TOKEN" }
+            $releases = @()
+            try { $releases = Invoke-RestMethod "https://api.github.com/repos/ggml-org/whisper.cpp/releases?per_page=30" } catch { Write-Host "release list unavailable: $_" }
             $asset = $null
             foreach ($rel in $releases) {
               $asset = $rel.assets | Where-Object { $_.name -eq "whisper-bin-x64.zip" } | Select-Object -First 1
               if ($asset) { Write-Host "Using whisper.cpp $($rel.tag_name)"; break }
             }
-            if (!$asset) { throw "no whisper-bin-x64.zip in the last 30 releases: " + (($releases | Select-Object -First 3 | ForEach-Object { $_.tag_name + "=" + (($_.assets | ForEach-Object name) -join "|") }) -join "; ") }
-            Invoke-WebRequest $asset.browser_download_url -OutFile dl/whisper.zip
+            $urls = @()
+            if ($asset) { $urls += $asset.browser_download_url }
+            # Known releases with Windows binaries, in case the API answer is empty or rate-limited.
+            $urls += "https://github.com/ggml-org/whisper.cpp/releases/download/v1.8.2/whisper-bin-x64.zip",
+                     "https://github.com/ggml-org/whisper.cpp/releases/download/v1.7.6/whisper-bin-x64.zip",
+                     "https://github.com/ggml-org/whisper.cpp/releases/download/v1.7.5/whisper-bin-x64.zip"
+            $ok = $false
+            foreach ($u in $urls) {
+              try { Invoke-WebRequest $u -OutFile dl/whisper.zip; Write-Host "whisper from $u"; $ok = $true; break } catch { Write-Host "skip $u" }
+            }
+            if (!$ok) { throw "could not download whisper-bin-x64.zip" }
             Expand-Archive dl/whisper.zip dl/whisper
             $cli = Get-ChildItem dl/whisper -Recurse -Filter whisper-cli.exe | Select-Object -First 1
             if (!$cli) { throw "whisper-cli.exe not in zip: " + ((Get-ChildItem dl/whisper -Recurse -Filter *.exe | ForEach-Object Name) -join ", ") }
