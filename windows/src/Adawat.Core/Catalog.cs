@@ -227,12 +227,12 @@ public static class Catalog
                 ops.Add(Tool("audio.channels", "Convert Channels", "Channels", Icons.Channels, MediaOps.ToMono, "channels"));
                 ops.Add(Tool("audio.bleep", "Bleep Audio", "Bleep", Icons.Bleep, NeedsWindow, "bleep"));
             }
-            ops.Add(Tool("ibra.transcribe", "Speech to Text", "To Text", Icons.Speech, Transcription.Quick, "transcribe"));
             else
             {
                 ops.Add(Tool("audio.silence", "Trim Silence", "Silence", Icons.Silence, MediaOps.TrimSilence));
                 ops.Add(Tool("audio.mono", "To Mono", "Mono", Icons.Channels, MediaOps.ToMono));
             }
+            ops.Add(Tool("ibra.transcribe", "Speech to Text", "To Text", Icons.Speech, Transcription.Quick, "transcribe"));
         }
 
         if (QrContent.CanEncode(files)) ops.Add(Tool("text.qr", "Create QR Code", "Make QR", Icons.Qr, QrContent.Quick, "qr"));
