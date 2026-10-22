@@ -53,12 +53,14 @@ jobs:
         run: |
           $tools = "build/publish/app-x64/tools"
           try {
-            $rel = Invoke-RestMethod "https://api.github.com/repos/ggml-org/whisper.cpp/releases/latest" -Headers @{ Authorization = "Bearer $env:GH_TOKEN" }
-            $names = ($rel.assets | ForEach-Object name) -join ", "
-            Write-Host "whisper.cpp $($rel.tag_name): $names"
-            $asset = $rel.assets | Where-Object { $_.name -eq "whisper-bin-x64.zip" } | Select-Object -First 1
-            if (!$asset) { $asset = $rel.assets | Where-Object { $_.name -like "whisper-bin-x64*.zip" } | Select-Object -First 1 }
-            if (!$asset) { throw "no x64 CPU zip in $($rel.tag_name): $names" }
+            # The newest release that ships Windows binaries (some releases have none).
+            $releases = Invoke-RestMethod "https://api.github.com/repos/ggml-org/whisper.cpp/releases?per_page=30" -Headers @{ Authorization = "Bearer $env:GH_TOKEN" }
+            $asset = $null
+            foreach ($rel in $releases) {
+              $asset = $rel.assets | Where-Object { $_.name -eq "whisper-bin-x64.zip" } | Select-Object -First 1
+              if ($asset) { Write-Host "Using whisper.cpp $($rel.tag_name)"; break }
+            }
+            if (!$asset) { throw "no whisper-bin-x64.zip in the last 30 releases: " + (($releases | Select-Object -First 3 | ForEach-Object { $_.tag_name + "=" + (($_.assets | ForEach-Object name) -join "|") }) -join "; ") }
             Invoke-WebRequest $asset.browser_download_url -OutFile dl/whisper.zip
             Expand-Archive dl/whisper.zip dl/whisper
             $cli = Get-ChildItem dl/whisper -Recurse -Filter whisper-cli.exe | Select-Object -First 1
