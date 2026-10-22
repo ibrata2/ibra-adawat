@@ -37,7 +37,7 @@ public sealed class Tray : IDisposable
             item.Click += (_, _) => action();
             return item;
         }
-        var hint = new MenuItem { Header = L10n.T("Adawat — drag files, then press a modifier key"), IsEnabled = false };
+        var hint = new MenuItem { Header = L10n.T("Right-click any file and choose IBRA Adawat"), IsEnabled = false };
         menu.Items.Add(hint);
         menu.Items.Add(new Separator());
         menu.Items.Add(Item("New Float", () => Floats.Create([]), ""));
@@ -45,6 +45,22 @@ public sealed class Tray : IDisposable
         menu.Items.Add(closeFloats);
         menu.Items.Add(Item("Create QR Code…", () => ToolWindows.Open("qr", []), ""));
         menu.Items.Add(Item("Download from Link…", Windows.IbraWindows.DownloadLink, "\uE896"));
+        menu.Items.Add(new Separator());
+        var drag = new MenuItem { Header = L10n.T("Also open the wheel when dragging + a key"), IsCheckable = true, IsChecked = Settings.Current.UseDragWheel };
+        drag.Click += (_, _) =>
+        {
+            Settings.Current.UseDragWheel = drag.IsChecked;
+            Settings.Current.Save();
+            if (drag.IsChecked && Application.Current is AdawatApp app) app.StartDrags();
+            else if (!drag.IsChecked) Hud.Shared.ShowMessage(L10n.T("Turned off after the app restarts"), Hud.Style.Success);
+        };
+        menu.Items.Add(drag);
+        if (RightClick.IsWindows11)
+        {
+            var classic = new MenuItem { Header = L10n.T("Show IBRA on the first right-click (classic menu)"), IsCheckable = true, IsChecked = RightClick.ClassicMenu };
+            classic.Click += (_, _) => RightClick.ClassicMenu = classic.IsChecked;
+            menu.Items.Add(classic);
+        }
         menu.Items.Add(new Separator());
         menu.Items.Add(Item("Welcome Guide…", WelcomeWindow.Present, ""));
         menu.Items.Add(Item("Settings…", SettingsWindow.Present, ""));

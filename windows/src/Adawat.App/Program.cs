@@ -18,9 +18,15 @@ public static class Program
             var app = new Application { ShutdownMode = ShutdownMode.OnExplicitShutdown };
             return Snapshots.Run(app, args.Where((a, i) => a != "--lang" && (i == 0 || args[i - 1] != "--lang")).ToArray());
         }
+        var opened = RightClick.FilesIn(args);
         using var single = new Mutex(true, "Local\\IbraAdawat.SingleInstance", out var first);
-        if (!first) return 0;
-        var main = new AdawatApp();
+        if (!first)
+        {
+            // Started from the right-click menu while the app runs: pass the files over and leave.
+            if (opened.Length > 0) RightClick.Forward(opened);
+            return 0;
+        }
+        var main = new AdawatApp(opened);
         return main.Run();
     }
 }
@@ -31,9 +37,12 @@ public sealed class AdawatApp : Application
     private readonly DragMonitor _drags = new();
     private WheelWindow? _wheel;
     private Tray? _tray;
+    private readonly string[] _opened;
+    private bool _dragsStarted;
 
-    public AdawatApp()
+    public AdawatApp(string[]? opened = null)
     {
+        _opened = opened ?? [];
         ShutdownMode = ShutdownMode.OnExplicitShutdown;
         DispatcherUnhandledException += (_, e) =>
         {
@@ -50,20 +59,9 @@ public sealed class AdawatApp : Application
         base.OnStartup(e);
         Log.Write($"started {typeof(AdawatApp).Assembly.GetName().Version} on {Environment.OSVersion}");
         _wheel = new WheelWindow();
-        _drags.KeyDuringDrag += (key, point) =>
-        {
-            var settings = Settings.Current;
-            WheelMode? mode = key == settings.ConvertKey ? WheelMode.Convert : key == settings.ToolsKey ? WheelMode.Tools : key == settings.ActionsKey ? WheelMode.Actions : null;
-            if (mode is { } m) _wheel.Show(m, point);
-        };
-        _drags.DragEnded += () =>
-        {
-            // The drop handler runs before the button-up is seen; a short delay lets it finish first.
-            var timer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromMilliseconds(150) };
-            timer.Tick += (_, _) => { timer.Stop(); if (!Native.IsDown(Native.VK_LBUTTON)) _wheel.HideWheel(); };
-            timer.Start();
-        };
-        _drags.Start();
+        RightClick.Register();
+        RightClick.Listen(Dispatcher);
+        if (Settings.Current.UseDragWheel) StartDrags();
         FileActions.FloatHandler = files => { Floats.Create(files); return Task.CompletedTask; };
         FileActions.ShareHandler = files => { Dispatcher.Invoke(() => ShareUI.Share(files)); return Task.CompletedTask; };
         FileActions.ChooseFolder = files => Task.FromResult(Dispatcher.Invoke(() =>
@@ -72,7 +70,34 @@ public sealed class AdawatApp : Application
             return dialog.ShowDialog() == true ? dialog.FolderName : null;
         }));
         _tray = new Tray();
-        if (!Settings.Current.HasSeenWelcome) WelcomeWindow.Present();
+        if (_opened.Length > 0) RightClick.Add(_opened);
+        else if (!Settings.Current.HasSeenWelcome)
+        {
+            Settings.Current.HasSeenWelcome = true;
+            Settings.Current.Save();
+            Hud.Shared.ShowMessage(L10n.T("Right-click any file and choose IBRA Adawat"), Hud.Style.Success);
+        }
+    }
+
+    /// <summary>The original drag-and-press-a-key wheel; off unless turned on from the tray menu.</summary>
+    public void StartDrags()
+    {
+        if (_dragsStarted || _wheel is not { } wheel) return;
+        _dragsStarted = true;
+        _drags.KeyDuringDrag += (key, point) =>
+        {
+            var settings = Settings.Current;
+            WheelMode? mode = key == settings.ConvertKey ? WheelMode.Convert : key == settings.ToolsKey ? WheelMode.Tools : key == settings.ActionsKey ? WheelMode.Actions : null;
+            if (mode is { } m) wheel.Show(m, point);
+        };
+        _drags.DragEnded += () =>
+        {
+            // The drop handler runs before the button-up is seen; a short delay lets it finish first.
+            var timer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromMilliseconds(150) };
+            timer.Tick += (_, _) => { timer.Stop(); if (!Native.IsDown(Native.VK_LBUTTON)) wheel.HideWheel(); };
+            timer.Start();
+        };
+        _drags.Start();
     }
 
     protected override void OnExit(ExitEventArgs e)

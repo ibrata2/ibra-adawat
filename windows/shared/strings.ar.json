@@ -623,5 +623,10 @@
  "Drop a video together with its .srt file": "اسحب الفيديو ويه ملف الترجمة .srt مالته",
  "Paste a link that starts with https://": "الصق رابط يبدي بـ https://",
  "This video is private or needs a login": "هذا الفيديو خاص أو يحتاج تسجيل دخول",
- "Download only what you have the right to keep.": "نزّل بس الأشياء اللي من حقك تحتفظ بيها."
+ "Download only what you have the right to keep.": "نزّل بس الأشياء اللي من حقك تحتفظ بيها.",
+ "Right-click any file and choose IBRA Adawat": "كليك يمين على أي ملف واختار IBRA أدوات",
+ "Also open the wheel when dragging + a key": "العجلة بالسحب + مفتاح (الطريقة القديمة)",
+ "Turned off after the app restarts": "يتطفى بعد إعادة تشغيل البرنامج",
+ "Show IBRA on the first right-click (classic menu)": "إظهار IBRA من أول كليك يمين (القائمة الكلاسيكية)",
+ "Nothing here for these files.": "ماكو شي لهالملفات هنا."
 }

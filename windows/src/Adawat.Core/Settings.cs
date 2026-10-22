@@ -37,6 +37,7 @@ public sealed class Settings
     public string Language { get; set; } = "ar";
 
     // IBRA additions
+    public bool UseDragWheel { get; set; }
     public string TranscribeSpoken { get; set; } = "auto";
     public string TranscribeTarget { get; set; } = "";
     public string TranscribeModel { get; set; } = "medium";

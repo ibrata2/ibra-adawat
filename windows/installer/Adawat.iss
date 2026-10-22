@@ -91,6 +91,16 @@ Name: "{autodesktop}\IBRA أدوات"; Filename: "{app}\IbraAdawat.exe"; Tasks: 
 ; The same value the app's own "Start Adawat when Windows starts" setting writes.
 Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "IbraAdawat"; ValueData: """{app}\IbraAdawat.exe"""; Tasks: startup; Flags: uninsdeletevalue
 
+; Right-click menu for files and folders (the app also refreshes these each time it starts).
+Root: HKCU; Subkey: "Software\Classes\*\shell\IbraAdawat"; ValueType: string; ValueName: "MUIVerb"; ValueData: "IBRA أدوات"; Flags: uninsdeletekey
+Root: HKCU; Subkey: "Software\Classes\*\shell\IbraAdawat"; ValueType: string; ValueName: "Icon"; ValueData: """{app}\IbraAdawat.exe"",0"
+Root: HKCU; Subkey: "Software\Classes\*\shell\IbraAdawat"; ValueType: string; ValueName: "MultiSelectModel"; ValueData: "Player"
+Root: HKCU; Subkey: "Software\Classes\*\shell\IbraAdawat\command"; ValueType: string; ValueName: ""; ValueData: """{app}\IbraAdawat.exe"" --open ""%1"""
+Root: HKCU; Subkey: "Software\Classes\Directory\shell\IbraAdawat"; ValueType: string; ValueName: "MUIVerb"; ValueData: "IBRA أدوات"; Flags: uninsdeletekey
+Root: HKCU; Subkey: "Software\Classes\Directory\shell\IbraAdawat"; ValueType: string; ValueName: "Icon"; ValueData: """{app}\IbraAdawat.exe"",0"
+Root: HKCU; Subkey: "Software\Classes\Directory\shell\IbraAdawat"; ValueType: string; ValueName: "MultiSelectModel"; ValueData: "Player"
+Root: HKCU; Subkey: "Software\Classes\Directory\shell\IbraAdawat\command"; ValueType: string; ValueName: ""; ValueData: """{app}\IbraAdawat.exe"" --open ""%1"""
+
 [Run]
 Filename: "{app}\IbraAdawat.exe"; Description: "{cm:Launch}"; Flags: nowait postinstall skipifsilent
 
