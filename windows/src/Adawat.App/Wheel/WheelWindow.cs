@@ -255,7 +255,7 @@ public sealed class WheelWindow : Window
             var petal = new System.Windows.Shapes.Path
             {
                 Data = WheelGeometry.Petal(index, count), Fill = hovered ? Theme.Accent : Theme.PetalFill,
-                Stroke = hovered ? new SolidColorBrush(Color.FromArgb(0xA0, 0xE3, 0x19, 0x2B)) : Theme.PetalStroke, StrokeThickness = 0.75,
+                Stroke = hovered ? Theme.PetalHoverStroke : Theme.PetalStroke, StrokeThickness = 0.75,
             };
             var group = new Canvas();
             group.Children.Add(petal);

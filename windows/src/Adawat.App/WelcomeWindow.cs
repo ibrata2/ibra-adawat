@@ -199,7 +199,7 @@ public static class WelcomeWindow
         var settings = new MagickReadSettings { Width = 600, Height = 600 };
         settings.SetDefine("gradient:angle", "135");
         using var image = new MagickImage("gradient:#7F70FF-#3B2AA8", settings);
-        new ImageMagick.Drawing.Drawables().FillColor(new MagickColor("#E3192B")).Circle(300, 300, 300, 170).Draw(image);
+        new ImageMagick.Drawing.Drawables().FillColor(new MagickColor(Theme.AccentColor.R, Theme.AccentColor.G, Theme.AccentColor.B)).Circle(300, 300, 300, 170).Draw(image);
         image.Write(path, MagickFormat.Png);
         return path;
     }
