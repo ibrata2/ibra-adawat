@@ -35,39 +35,60 @@ jobs:
           }
           if (!(Test-Path "$out/IbraAdawat.exe")) { throw "IbraAdawat.exe was not built" }
 
-      - name: Bundle ffmpeg, whisper, yt-dlp and Real-ESRGAN
+      - name: Bundle ffmpeg
         working-directory: windows
         run: |
           $tools = "build/publish/app-x64/tools"
           New-Item -ItemType Directory -Force $tools, dl | Out-Null
+          try {
+            Invoke-WebRequest "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl.zip" -OutFile dl/ffmpeg.zip
+            Expand-Archive dl/ffmpeg.zip dl/ffmpeg
+            Get-ChildItem dl/ffmpeg -Recurse -Include ffmpeg.exe, ffprobe.exe | Copy-Item -Destination $tools
+            Get-ChildItem dl/ffmpeg -Recurse -Filter LICENSE.txt | Select-Object -First 1 | Copy-Item -Destination "$tools/ffmpeg-LICENSE.txt"
+            if (!(Test-Path "$tools/ffmpeg.exe")) { throw "ffmpeg.exe missing after unzip" }
+          } catch { Write-Host "::error::ffmpeg: $_"; exit 1 }
 
-          # ffmpeg + ffprobe (BtbN GPL build: libass, harfbuzz, libwebp, x264)
-          gh release download latest -R BtbN/FFmpeg-Builds -p "ffmpeg-master-latest-win64-gpl.zip" -D dl
-          Expand-Archive dl/ffmpeg-master-latest-win64-gpl.zip dl/ffmpeg
-          Get-ChildItem dl/ffmpeg -Recurse -Include ffmpeg.exe, ffprobe.exe | Copy-Item -Destination $tools
-          Get-ChildItem dl/ffmpeg -Recurse -Filter LICENSE.txt | Select-Object -First 1 | Copy-Item -Destination "$tools/ffmpeg-LICENSE.txt"
+      - name: Bundle whisper.cpp
+        working-directory: windows
+        run: |
+          $tools = "build/publish/app-x64/tools"
+          try {
+            $rel = Invoke-RestMethod "https://api.github.com/repos/ggml-org/whisper.cpp/releases/latest" -Headers @{ Authorization = "Bearer $env:GH_TOKEN" }
+            $names = ($rel.assets | ForEach-Object name) -join ", "
+            Write-Host "whisper.cpp $($rel.tag_name): $names"
+            $asset = $rel.assets | Where-Object { $_.name -eq "whisper-bin-x64.zip" } | Select-Object -First 1
+            if (!$asset) { $asset = $rel.assets | Where-Object { $_.name -like "whisper-bin-x64*.zip" } | Select-Object -First 1 }
+            if (!$asset) { throw "no x64 CPU zip in $($rel.tag_name): $names" }
+            Invoke-WebRequest $asset.browser_download_url -OutFile dl/whisper.zip
+            Expand-Archive dl/whisper.zip dl/whisper
+            $cli = Get-ChildItem dl/whisper -Recurse -Filter whisper-cli.exe | Select-Object -First 1
+            if (!$cli) { throw "whisper-cli.exe not in zip: " + ((Get-ChildItem dl/whisper -Recurse -Filter *.exe | ForEach-Object Name) -join ", ") }
+            Copy-Item $cli.FullName $tools
+            Get-ChildItem $cli.DirectoryName -Filter *.dll | Copy-Item -Destination $tools
+          } catch { Write-Host "::error::whisper: $_"; exit 1 }
 
-          # whisper.cpp (speech to text, CPU build)
-          gh release download -R ggml-org/whisper.cpp -p "whisper-bin-x64.zip" -D dl
-          Expand-Archive dl/whisper-bin-x64.zip dl/whisper
-          $cli = Get-ChildItem dl/whisper -Recurse -Filter whisper-cli.exe | Select-Object -First 1
-          if (!$cli) { throw "whisper-cli.exe not found in the whisper.cpp release" }
-          Copy-Item $cli.FullName $tools
-          Get-ChildItem $cli.DirectoryName -Filter *.dll | Copy-Item -Destination $tools
+      - name: Bundle yt-dlp
+        working-directory: windows
+        run: |
+          try { Invoke-WebRequest "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe" -OutFile build/publish/app-x64/tools/yt-dlp.exe }
+          catch { Write-Host "::error::yt-dlp: $_"; exit 1 }
 
-          # yt-dlp (download from a link)
-          gh release download -R yt-dlp/yt-dlp -p "yt-dlp.exe" -D $tools
-
-          # Real-ESRGAN ncnn Vulkan (AI enlarge on the graphics card)
-          gh release download v0.2.5.0 -R xinntao/Real-ESRGAN -p "realesrgan-ncnn-vulkan-20220424-windows.zip" -D dl
-          Expand-Archive dl/realesrgan-ncnn-vulkan-20220424-windows.zip dl/esrgan
-          $exe = Get-ChildItem dl/esrgan -Recurse -Filter realesrgan-ncnn-vulkan.exe | Select-Object -First 1
-          New-Item -ItemType Directory -Force "$tools/realesrgan/models" | Out-Null
-          Copy-Item $exe.FullName "$tools/realesrgan"
-          Get-ChildItem $exe.DirectoryName -Filter *.dll | Copy-Item -Destination "$tools/realesrgan"
-          Get-ChildItem $exe.DirectoryName -Recurse -Filter "realesrgan-x4plus.*" | Where-Object { $_.Name -notlike "*anime*" } | Copy-Item -Destination "$tools/realesrgan/models"
-
-          Get-ChildItem $tools -Recurse | Select-Object FullName, Length | Format-Table -AutoSize
+      - name: Bundle Real-ESRGAN
+        working-directory: windows
+        run: |
+          $tools = "build/publish/app-x64/tools"
+          try {
+            Invoke-WebRequest "https://github.com/xinntao/Real-ESRGAN/releases/download/v0.2.5.0/realesrgan-ncnn-vulkan-20220424-windows.zip" -OutFile dl/esrgan.zip
+            Expand-Archive dl/esrgan.zip dl/esrgan
+            $exe = Get-ChildItem dl/esrgan -Recurse -Filter realesrgan-ncnn-vulkan.exe | Select-Object -First 1
+            if (!$exe) { throw "exe not in zip" }
+            New-Item -ItemType Directory -Force "$tools/realesrgan/models" | Out-Null
+            Copy-Item $exe.FullName "$tools/realesrgan"
+            Get-ChildItem $exe.DirectoryName -Filter *.dll | Copy-Item -Destination "$tools/realesrgan"
+            Get-ChildItem $exe.DirectoryName -Recurse -Filter "realesrgan-x4plus.*" | Where-Object { $_.Name -notlike "*anime*" } | Copy-Item -Destination "$tools/realesrgan/models"
+            if (!(Get-ChildItem "$tools/realesrgan/models")) { throw "x4plus model files not found" }
+            Get-ChildItem $tools -Recurse | Select-Object FullName, Length | Format-Table -AutoSize
+          } catch { Write-Host "::error::realesrgan: $_"; exit 1 }
 
       - name: Smoke test the bundled tools
         continue-on-error: true
