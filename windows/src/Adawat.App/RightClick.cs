@@ -9,16 +9,16 @@ using Microsoft.Win32;
 namespace Adawat.App;
 
 /// <summary>
-/// "IBRA أدوات" in Explorer's right-click menu, for files and folders. Explorer starts IbraAdawat.exe --open "file" once per
+/// "IBMC" in Explorer's right-click menu, for files and folders. Explorer starts IBMC.exe --open "file" once per
 /// selected item; the first copy runs the app, the others pass their file through a named pipe, and the app gathers what
 /// arrives within a moment into one selection.
 /// </summary>
 public static partial class RightClick
 {
-    private const string PipeName = "IbraAdawat.Open";
+    private const string PipeName = "IBMC.Open";
     /// <summary>Sent instead of a file when the app is started again from its shortcut: show the main window.</summary>
     public const string ShowWindowSignal = "::show::";
-    private const string Verb = "IbraAdawat";
+    private const string Verb = "IBMC";
     private const string Win11ClassicKey = @"Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}";
 
     [LibraryImport("user32.dll")]
@@ -32,11 +32,14 @@ public static partial class RightClick
     {
         try
         {
-            var exe = Environment.ProcessPath ?? Path.Combine(AppContext.BaseDirectory, "IbraAdawat.exe");
+            // Entries left by IBRA Adawat, the earlier name.
+            foreach (var old in new[] { "*", "Directory" })
+                try { Registry.CurrentUser.DeleteSubKeyTree($@"Software\Classes\{old}\shell\IbraAdawat", false); } catch (Exception) { }
+            var exe = Environment.ProcessPath ?? Path.Combine(AppContext.BaseDirectory, "IBMC.exe");
             foreach (var target in new[] { "*", "Directory" })
             {
                 using var key = Registry.CurrentUser.CreateSubKey($@"Software\Classes\{target}\shell\{Verb}");
-                key.SetValue("MUIVerb", L10n.IsArabic ? "IBRA أدوات" : "IBRA Adawat");
+                key.SetValue("MUIVerb", "IBMC");
                 key.SetValue("Icon", $"\"{exe}\",0");
                 key.SetValue("MultiSelectModel", "Player");
                 key.SetValue("Position", "Top");

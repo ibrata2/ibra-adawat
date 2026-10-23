@@ -1,7 +1,7 @@
-# IBRA Adawat — build the Windows installer on your own PC.
+# IBMC — build the Windows installer on your own PC.
 # Right-click this file → "Run with PowerShell". It installs what it needs the first time (.NET 10 SDK, Inno Setup),
 # downloads ffmpeg, whisper, yt-dlp and Real-ESRGAN, builds the app, and leaves
-# windows\build\installer\IBRA-Adawat-Setup-x64.exe next to this file.
+# windows\build\installer\IBMC-Setup-x64.exe next to this file.
 $ErrorActionPreference = "Stop"
 Set-Location $PSScriptRoot
 $env:DOTNET_CLI_TELEMETRY_OPTOUT = 1; $env:DOTNET_NOLOGO = 1
@@ -51,6 +51,6 @@ Get-ChildItem $exe.DirectoryName -Recurse -Filter "realesrgan-x4plus.*" | Where-
 Set-Location installer
 & $iscc /Q /DArch=x64 /DAppVersion=1.1.0 "/DSource=..\build\publish\app-x64" Adawat.iss
 if ($LASTEXITCODE) { throw "Installer failed." }
-Write-Host "`nDone: windows\build\installer\IBRA-Adawat-Setup-x64.exe" -ForegroundColor Green
+Write-Host "`nDone: windows\build\installer\IBMC-Setup-x64.exe" -ForegroundColor Green
 explorer.exe (Resolve-Path ..\build\installer)
 Read-Host "Press Enter to close"

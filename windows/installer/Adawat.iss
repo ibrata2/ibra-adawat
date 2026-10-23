@@ -1,4 +1,4 @@
-﻿; IBRA Adawat (based on Adawat by Motalim, GPL v3) for Windows: a per-user installer (no administrator rights), in Arabic or English.
+﻿; IBMC — Ibrahim Multimedia Converter (based on Adawat by Motalim, GPL v3) for Windows: a per-user installer (no administrator rights), in Arabic or English.
 ; Built by windows/tools/build-installer.sh, which publishes the app and passes:
 ;   /DArch=arm64|x64  /DSource=<published folder>  /DAppVersion=1.0.0
 
@@ -14,17 +14,18 @@
 
 [Setup]
 AppId={{8D4E2B71-3C9A-4F6E-9B15-1A7C0E5D93F2}
-AppName=IBRA Adawat
+AppName=IBMC
 AppVersion={#AppVersion}
-AppVerName=IBRA Adawat {#AppVersion}
-AppPublisher=IBRA (Ibrahim Rosem)
+AppVerName=IBMC {#AppVersion}
+AppPublisher=Ibrahim Rosem
 AppPublisherURL=https://github.com/ibrata2/ibra-adawat
 AppSupportURL=https://github.com/ibrata2/ibra-adawat/issues
 AppUpdatesURL=https://github.com/ibrata2/ibra-adawat/releases
-AppCopyright=IBRA · based on Adawat by Motalim · GPL v3
+AppCopyright=IBMC · Ibrahim Rosem · based on Adawat by Motalim · GPL v3
 VersionInfoVersion={#AppVersion}
-DefaultDirName={autopf}\IBRA Adawat
-DefaultGroupName=IBRA Adawat
+DefaultDirName={autopf}\IBMC
+UsePreviousAppDir=no
+DefaultGroupName=IBMC
 DisableProgramGroupPage=yes
 DisableDirPage=auto
 PrivilegesRequired=lowest
@@ -32,11 +33,11 @@ PrivilegesRequired=lowest
 SetupIconFile=..\assets\Adawat.ico
 WizardImageFile=wizard-side-100.bmp,wizard-side-150.bmp,wizard-side-200.bmp
 WizardSmallImageFile=wizard-corner-100.bmp,wizard-corner-150.bmp,wizard-corner-200.bmp
-UninstallDisplayIcon={app}\IbraAdawat.exe
-UninstallDisplayName=IBRA أدوات
+UninstallDisplayIcon={app}\IBMC.exe
+UninstallDisplayName=IBMC — Ibrahim Multimedia Converter
 OutputDir=..\build\installer
 ; A fixed name keeps the "latest release" download links valid from one version to the next.
-OutputBaseFilename=IBRA-Adawat-Setup-{#Arch}
+OutputBaseFilename=IBMC-Setup-{#Arch}
 Compression=lzma2/ultra64
 SolidCompression=yes
 LZMAUseSeparateProcess=yes
@@ -59,14 +60,14 @@ Name: "ar"; MessagesFile: "compiler:Languages\Arabic.isl"
 Name: "en"; MessagesFile: "compiler:Default.isl"
 
 [CustomMessages]
-en.StartWithWindows=Start IBRA Adawat when Windows starts
-ar.StartWithWindows=تشغيل IBRA أدوات مع بدء Windows
+en.StartWithWindows=Start IBMC when Windows starts
+ar.StartWithWindows=تشغيل IBMC مع بدء Windows
 en.DesktopIcon=Create a desktop shortcut
 ar.DesktopIcon=إنشاء اختصار على سطح المكتب
 en.Extras=Options:
 ar.Extras=خيارات:
-en.Launch=Start IBRA Adawat
-ar.Launch=تشغيل IBRA أدوات
+en.Launch=Start IBMC
+ar.Launch=تشغيل IBMC
 
 [Tasks]
 Name: "startup"; Description: "{cm:StartWithWindows}"; GroupDescription: "{cm:Extras}"
@@ -78,34 +79,42 @@ Source: "..\..\LICENSE"; DestDir: "{app}"; DestName: "LICENSE.txt"; Flags: ignor
 Source: "..\..\THIRD-PARTY-NOTICES.md"; DestDir: "{app}"; Flags: ignoreversion
 
 [InstallDelete]
+; IBRA Adawat, the earlier name of this app: its folder and shortcuts.
+Type: filesandordirs; Name: "{autopf}\IBRA Adawat"
+Type: files; Name: "{autodesktop}\IBRA أدوات.lnk"
+Type: files; Name: "{autoprograms}\IBRA أدوات.lnk"
 ; Files from an earlier version that this one no longer ships.
 Type: filesandordirs; Name: "{app}\ar"
 Type: files; Name: "{app}\*.pdb"
 Type: files; Name: "{app}\Microsoft.Web.WebView2.*.xml"
 
 [Icons]
-Name: "{autoprograms}\IBRA أدوات"; Filename: "{app}\IbraAdawat.exe"
-Name: "{autodesktop}\IBRA أدوات"; Filename: "{app}\IbraAdawat.exe"; Tasks: desktopicon
+Name: "{autoprograms}\IBMC"; Filename: "{app}\IBMC.exe"
+Name: "{autodesktop}\IBMC"; Filename: "{app}\IBMC.exe"; Tasks: desktopicon
 
 [Registry]
+; Entries of IBRA Adawat, the earlier name.
+Root: HKCU; Subkey: "Software\Classes\*\shell\IbraAdawat"; Flags: deletekey
+Root: HKCU; Subkey: "Software\Classes\Directory\shell\IbraAdawat"; Flags: deletekey
+Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueName: "IbraAdawat"; Flags: deletevalue
 ; The same value the app's own "Start Adawat when Windows starts" setting writes.
-Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "IbraAdawat"; ValueData: """{app}\IbraAdawat.exe"" --background"; Tasks: startup; Flags: uninsdeletevalue
+Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "IBMC"; ValueData: """{app}\IBMC.exe"" --background"; Tasks: startup; Flags: uninsdeletevalue
 
 ; Right-click menu for files and folders (the app also refreshes these each time it starts).
-Root: HKCU; Subkey: "Software\Classes\*\shell\IbraAdawat"; ValueType: string; ValueName: "MUIVerb"; ValueData: "IBRA أدوات"; Flags: uninsdeletekey
-Root: HKCU; Subkey: "Software\Classes\*\shell\IbraAdawat"; ValueType: string; ValueName: "Icon"; ValueData: """{app}\IbraAdawat.exe"",0"
-Root: HKCU; Subkey: "Software\Classes\*\shell\IbraAdawat"; ValueType: string; ValueName: "MultiSelectModel"; ValueData: "Player"
-Root: HKCU; Subkey: "Software\Classes\*\shell\IbraAdawat\command"; ValueType: string; ValueName: ""; ValueData: """{app}\IbraAdawat.exe"" --open ""%1"""
-Root: HKCU; Subkey: "Software\Classes\Directory\shell\IbraAdawat"; ValueType: string; ValueName: "MUIVerb"; ValueData: "IBRA أدوات"; Flags: uninsdeletekey
-Root: HKCU; Subkey: "Software\Classes\Directory\shell\IbraAdawat"; ValueType: string; ValueName: "Icon"; ValueData: """{app}\IbraAdawat.exe"",0"
-Root: HKCU; Subkey: "Software\Classes\Directory\shell\IbraAdawat"; ValueType: string; ValueName: "MultiSelectModel"; ValueData: "Player"
-Root: HKCU; Subkey: "Software\Classes\Directory\shell\IbraAdawat\command"; ValueType: string; ValueName: ""; ValueData: """{app}\IbraAdawat.exe"" --open ""%1"""
+Root: HKCU; Subkey: "Software\Classes\*\shell\IBMC"; ValueType: string; ValueName: "MUIVerb"; ValueData: "IBMC"; Flags: uninsdeletekey
+Root: HKCU; Subkey: "Software\Classes\*\shell\IBMC"; ValueType: string; ValueName: "Icon"; ValueData: """{app}\IBMC.exe"",0"
+Root: HKCU; Subkey: "Software\Classes\*\shell\IBMC"; ValueType: string; ValueName: "MultiSelectModel"; ValueData: "Player"
+Root: HKCU; Subkey: "Software\Classes\*\shell\IBMC\command"; ValueType: string; ValueName: ""; ValueData: """{app}\IBMC.exe"" --open ""%1"""
+Root: HKCU; Subkey: "Software\Classes\Directory\shell\IBMC"; ValueType: string; ValueName: "MUIVerb"; ValueData: "IBMC"; Flags: uninsdeletekey
+Root: HKCU; Subkey: "Software\Classes\Directory\shell\IBMC"; ValueType: string; ValueName: "Icon"; ValueData: """{app}\IBMC.exe"",0"
+Root: HKCU; Subkey: "Software\Classes\Directory\shell\IBMC"; ValueType: string; ValueName: "MultiSelectModel"; ValueData: "Player"
+Root: HKCU; Subkey: "Software\Classes\Directory\shell\IBMC\command"; ValueType: string; ValueName: ""; ValueData: """{app}\IBMC.exe"" --open ""%1"""
 
 [Run]
-Filename: "{app}\IbraAdawat.exe"; Description: "{cm:Launch}"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\IBMC.exe"; Description: "{cm:Launch}"; Flags: nowait postinstall skipifsilent
 
 [UninstallRun]
-Filename: "{sys}\taskkill.exe"; Parameters: "/im IbraAdawat.exe /f"; Flags: runhidden; RunOnceId: "StopIbraAdawat"
+Filename: "{sys}\taskkill.exe"; Parameters: "/im IBMC.exe /f"; Flags: runhidden; RunOnceId: "StopIBMC"
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}"
@@ -116,8 +125,9 @@ function PrepareToInstall(var NeedsRestart: Boolean): String;
 var
   Code: Integer;
 begin
+  Exec(ExpandConstant('{sys}\taskkill.exe'), '/f /im IBMC.exe', '', SW_HIDE, ewWaitUntilTerminated, Code);
   Exec(ExpandConstant('{sys}\taskkill.exe'), '/f /im IbraAdawat.exe', '', SW_HIDE, ewWaitUntilTerminated, Code);
-  Exec(ExpandConstant('{sys}\taskkill.exe'), '/f /im ibra-adawat-cli.exe', '', SW_HIDE, ewWaitUntilTerminated, Code);
+  Exec(ExpandConstant('{sys}\taskkill.exe'), '/f /im ibmc-cli.exe', '', SW_HIDE, ewWaitUntilTerminated, Code);
   Sleep(500);
   Result := '';
 end;
@@ -129,7 +139,10 @@ var
 begin
   if CurStep = ssPostInstall then
   begin
-    Folder := ExpandConstant('{userappdata}\IbraAdawat');
+    Folder := ExpandConstant('{userappdata}\IBMC');
+    { Settings and downloaded models of IBRA Adawat, the earlier name, move over. }
+    if (not DirExists(Folder)) and DirExists(ExpandConstant('{userappdata}\IbraAdawat')) then
+      RenameFile(ExpandConstant('{userappdata}\IbraAdawat'), Folder);
     if not FileExists(Folder + '\settings.json') then
     begin
       ForceDirectories(Folder);

@@ -4,7 +4,7 @@
     <TargetFramework></TargetFramework>
     <TargetFrameworks>net10.0-windows10.0.22621.0;net10.0</TargetFrameworks>
     <OutputType>Exe</OutputType>
-    <AssemblyName>ibra-adawat-cli</AssemblyName>
+    <AssemblyName>ibmc-cli</AssemblyName>
     <RootNamespace>Adawat.Cli</RootNamespace>
     <UseWPF Condition="$(TargetFramework.Contains('-windows'))">true</UseWPF>
   </PropertyGroup>

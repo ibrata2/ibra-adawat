@@ -48,19 +48,17 @@ public sealed class HomeWindow : Window
 
     private HomeWindow()
     {
-        Title = L10n.T("IBRA Adawat");
+        Title = "IBMC — Ibrahim Multimedia Converter";
         Width = 920;
         Height = 600;
         MinWidth = 720;
         MinHeight = 440;
         WindowStartupLocation = WindowStartupLocation.CenterScreen;
-        Background = Theme.Surface;
-        Foreground = Theme.Ink;
+        Theme.Apply(this);
         FontFamily = Theme.Font;
         FlowDirection = Theme.Direction;
         Icon = new System.Windows.Media.Imaging.BitmapImage(new Uri("pack://application:,,,/Assets/Adawat.ico"));
         AllowDrop = true;
-        SourceInitialized += (_, _) => Native.MatchTitleBar(new System.Windows.Interop.WindowInteropHelper(this).Handle, Theme.IsDark);
 
         var root = new Grid();
         root.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1.25, GridUnitType.Star) });
@@ -87,7 +85,7 @@ public sealed class HomeWindow : Window
         var hint = new StackPanel { HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
         hint.Children.Add(UI.Icon("", 44, Theme.Accent).Pad(0, 6));
         hint.Children.Add(new TextBlock { Text = L10n.T("Drop files here"), FontSize = 18, FontWeight = FontWeights.SemiBold, Foreground = Theme.Ink, HorizontalAlignment = HorizontalAlignment.Center });
-        hint.Children.Add(new TextBlock { Text = L10n.T("or add them with the buttons above, or right-click any file in Explorer and choose IBRA Adawat"),
+        hint.Children.Add(new TextBlock { Text = L10n.T("or add them with the buttons above, or right-click any file in Explorer and choose IBMC"),
                                           FontSize = 12, Foreground = Theme.Muted, TextWrapping = TextWrapping.Wrap, TextAlignment = TextAlignment.Center, MaxWidth = 340, Margin = new Thickness(0, 6, 0, 14) });
         var pick = UI.Button("Choose Files…", AddFilesDialog, primary: true, icon: "");
         pick.HorizontalAlignment = HorizontalAlignment.Center;

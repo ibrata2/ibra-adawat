@@ -1,6 +1,6 @@
 {
  "Adding background {1} of {2}": "جارٍ إضافة الخلفية {1} من {2}",
- "Allow Adawat to control {1} in System Settings › Privacy & Security › Automation.": "اسمح لIBRA أدوات بالتحكم في {1} من إعدادات النظام › الخصوصية والأمان › الأتمتة.",
+ "Allow Adawat to control {1} in System Settings › Privacy & Security › Automation.": "اسمح لIBMC بالتحكم في {1} من إعدادات النظام › الخصوصية والأمان › الأتمتة.",
  "Audio keeps its pitch. The new length is {1}.": "يحتفظ الصوت بطبقته. المدة الجديدة {1}.",
  "Box {1}": "مربع {1}",
  "Building slide {1} of {2}": "جارٍ بناء الشريحة {1} من {2}",
@@ -138,5 +138,14 @@
  "{1} pictures, no song": "{1} صور بدون أغنية",
  "{1} s": "{1} ثا",
  "For the {1} selected": "للـ {1} المحددة",
- "For all {1} files": "لكل الـ {1} ملفات"
+ "For all {1} files": "لكل الـ {1} ملفات",
+ "IBMC Settings": "إعدادات IBMC",
+ "Start IBMC when Windows starts": "تشغيل IBMC مع بدء Windows",
+ "IBMC restarts to change the language.": "يُعاد تشغيل IBMC لتغيير اللغة.",
+ "Style": "الستايل",
+ "Glass": "زجاجي",
+ "Light": "عادي (فاتح)",
+ "Dark": "ليلي (داكن)",
+ "Exit Adawat": "إنهاء IBMC",
+ "Adawat": "IBMC"
 }

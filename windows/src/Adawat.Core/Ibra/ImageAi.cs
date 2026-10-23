@@ -103,7 +103,7 @@ public static class Upscale
 
     public static async Task<IReadOnlyList<string>> Run(IReadOnlyList<string> files, int factor, OperationContext context)
     {
-        if (!File.Exists(Tool)) throw new AdawatException("The image enlarger is missing. Reinstall IBRA Adawat.");
+        if (!File.Exists(Tool)) throw new AdawatException("The image enlarger is missing. Reinstall IBMC.");
         factor = factor >= 4 ? 4 : 2;
         var outputs = new List<string>();
         using var temp = Output.Temp();
@@ -157,7 +157,7 @@ public static class LinkDownload
 
     public static async Task<IReadOnlyList<string>> Run(string url, string quality, OperationContext context)
     {
-        var tool = ProcessRunner.Find("yt-dlp") ?? throw new AdawatException("The downloader is missing. Reinstall IBRA Adawat.");
+        var tool = ProcessRunner.Find("yt-dlp") ?? throw new AdawatException("The downloader is missing. Reinstall IBMC.");
         if (!Uri.TryCreate(url.Trim(), UriKind.Absolute, out var uri) || uri.Scheme is not ("http" or "https"))
             throw new AdawatException("Paste a link that starts with https://");
         var ffmpeg = ProcessRunner.Find("ffmpeg");

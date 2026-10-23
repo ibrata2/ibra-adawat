@@ -63,7 +63,7 @@ public static class Transcription
 
     public static async Task<IReadOnlyList<string>> Run(IReadOnlyList<string> files, TranscribeOptions options, OperationContext context)
     {
-        var whisper = ProcessRunner.Find("whisper-cli") ?? throw new AdawatException("The speech engine is missing. Reinstall IBRA Adawat.");
+        var whisper = ProcessRunner.Find("whisper-cli") ?? throw new AdawatException("The speech engine is missing. Reinstall IBMC.");
         var model = ModelPath(options.Model);
         if (!File.Exists(model))
         {

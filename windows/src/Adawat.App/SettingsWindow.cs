@@ -22,7 +22,7 @@ public static class SettingsWindow
     public static ToolWindow Make()
     {
         var settings = Settings.Current;
-        var window = new ToolWindow("Adawat Settings", 460);
+        var window = new ToolWindow("IBMC Settings", 460);
         var stack = new StackPanel();
         void Section(string title) { stack.Children.Add(UI.Text(title, 12, FontWeights.SemiBold, Theme.Muted).Pad(0, 6)); }
         void Save() => settings.Save();
@@ -50,13 +50,19 @@ public static class SettingsWindow
         stack.Children.Add(UI.Divider());
 
         Section("General");
-        stack.Children.Add(UI.Check("Start Adawat when Windows starts", Startup.IsEnabled, Startup.Set).Pad(0, 4));
+        stack.Children.Add(UI.Check("Start IBMC when Windows starts", Startup.IsEnabled, Startup.Set).Pad(0, 4));
         var restart = UI.Button("Restart Now", () =>
         {
-            Process.Start(new ProcessStartInfo(Environment.ProcessPath!) { UseShellExecute = true });
-            Application.Current.Shutdown();
+            AdawatApp.Restart();
         });
         restart.Visibility = Visibility.Collapsed;
+        stack.Children.Add(UI.Row("Style", UI.Picker([("glass", "Glass"), ("light", "Light"), ("dark", "Dark")], Theme.Style, v =>
+        {
+            if (v == Theme.Style) return;
+            settings.Style = v;
+            Save();
+            AdawatApp.Restart();
+        })));
         stack.Children.Add(UI.Row("Language", UI.Picker([("ar", "العربية"), ("en", "English")], settings.Language, v =>
         {
             settings.Language = v;
@@ -64,7 +70,7 @@ public static class SettingsWindow
             restart.Visibility = v != (L10n.IsArabic ? "ar" : "en") ? Visibility.Visible : Visibility.Collapsed;
         })));
         var restartRow = new DockPanel { LastChildFill = false };
-        var note = UI.Caption("Adawat restarts to change the language.");
+        var note = UI.Caption("IBMC restarts to change the language.");
         DockPanel.SetDock(restart, Dock.Right);
         restartRow.Children.Add(restart);
         restartRow.Children.Add(note);
@@ -94,12 +100,13 @@ public static class Startup
 {
     private const string Key = @"Software\Microsoft\Windows\CurrentVersion\Run";
 
-    public static bool IsEnabled => Registry.CurrentUser.OpenSubKey(Key)?.GetValue("IbraAdawat") != null;
+    public static bool IsEnabled => Registry.CurrentUser.OpenSubKey(Key)?.GetValue("IBMC") != null;
 
     public static void Set(bool enabled)
     {
         using var key = Registry.CurrentUser.CreateSubKey(Key);
-        if (enabled) key.SetValue("IbraAdawat", $"\"{Environment.ProcessPath}\" --background");
-        else key.DeleteValue("IbraAdawat", false);
+        key.DeleteValue("IbraAdawat", false);
+        if (enabled) key.SetValue("IBMC", $"\"{Environment.ProcessPath}\" --background");
+        else key.DeleteValue("IBMC", false);
     }
 }

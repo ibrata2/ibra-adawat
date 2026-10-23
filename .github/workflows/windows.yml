@@ -1,4 +1,4 @@
-name: Build IBRA Adawat for Windows
+name: Build IBMC for Windows
 
 on:
   push:
@@ -33,7 +33,7 @@ jobs:
             dotnet publish "src/$p/$p.csproj" -f net10.0-windows10.0.22621.0 -c Release -r win-x64 --self-contained -p:DebugType=none -o $out
             if ($LASTEXITCODE) { exit $LASTEXITCODE }
           }
-          if (!(Test-Path "$out/IbraAdawat.exe")) { throw "IbraAdawat.exe was not built" }
+          if (!(Test-Path "$out/IBMC.exe")) { throw "IBMC.exe was not built" }
 
       - name: Bundle ffmpeg
         working-directory: windows
@@ -110,7 +110,7 @@ jobs:
           ./tools/ffmpeg.exe -hide_banner -filters | Select-String -Pattern " subtitles | drawtext | xfade "
           ./tools/whisper-cli.exe --help 2>&1 | Select-Object -First 3
           ./tools/yt-dlp.exe --version
-          ./ibra-adawat-cli.exe doctor
+          ./ibmc-cli.exe doctor
 
       - name: Make sure Inno Setup has Arabic
         run: |
@@ -123,23 +123,23 @@ jobs:
       - name: Build the installer
         working-directory: windows/installer
         run: |
-          $version = "1.1.${{ github.run_number }}"
+          $version = "2.0.${{ github.run_number }}"
           & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" /Q /DArch=x64 /DAppVersion=$version "/DSource=..\build\publish\app-x64" Adawat.iss
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
-          Get-FileHash ..\build\installer\IBRA-Adawat-Setup-x64.exe -Algorithm SHA256 | Format-List
+          Get-FileHash ..\build\installer\IBMC-Setup-x64.exe -Algorithm SHA256 | Format-List
 
       - uses: actions/upload-artifact@v4
         with:
-          name: IBRA-Adawat-Setup-x64
-          path: windows/build/installer/IBRA-Adawat-Setup-x64.exe
+          name: IBMC-Setup-x64
+          path: windows/build/installer/IBMC-Setup-x64.exe
 
       - name: Publish a release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.1.${{ github.run_number }}
-          name: IBRA أدوات 1.1.${{ github.run_number }}
+          tag_name: v2.0.${{ github.run_number }}
+          name: IBMC — Ibrahim Multimedia Converter 2.0.${{ github.run_number }}
           make_latest: true
-          files: windows/build/installer/IBRA-Adawat-Setup-x64.exe
+          files: windows/build/installer/IBMC-Setup-x64.exe
           body: |
-            IBRA أدوات — نسخة مطوّرة من [أدوات](https://github.com/motalim-ai/adawat) (GPL v3).
-            حمّل **IBRA-Adawat-Setup-x64.exe** وشغّله. إذا طلع تحذير Windows: More info ← Run anyway.
+            IBMC — Ibrahim Multimedia Converter — نسخة مطوّرة من [أدوات](https://github.com/motalim-ai/adawat) (GPL v3).
+            حمّل **IBMC-Setup-x64.exe** وشغّله. إذا طلع تحذير Windows: More info ← Run anyway.

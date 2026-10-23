@@ -37,10 +37,10 @@ public sealed class Tray : IDisposable
             item.Click += (_, _) => action();
             return item;
         }
-        var hint = new MenuItem { Header = L10n.T("Right-click any file and choose IBRA Adawat"), IsEnabled = false };
+        var hint = new MenuItem { Header = L10n.T("Right-click any file and choose IBMC"), IsEnabled = false };
         menu.Items.Add(hint);
         menu.Items.Add(new Separator());
-        menu.Items.Add(Item("Open IBRA Adawat", () => HomeWindow.Present(), "\uE8A7"));
+        menu.Items.Add(Item("Open IBMC", () => HomeWindow.Present(), "\uE8A7"));
         menu.Items.Add(Item("New Float", () => Floats.Create([]), ""));
         var closeFloats = Item("Close All Floats", Floats.CloseAll, "");
         menu.Items.Add(closeFloats);
@@ -58,10 +58,24 @@ public sealed class Tray : IDisposable
         menu.Items.Add(drag);
         if (RightClick.IsWindows11)
         {
-            var classic = new MenuItem { Header = L10n.T("Show IBRA on the first right-click (classic menu)"), IsCheckable = true, IsChecked = RightClick.ClassicMenu };
+            var classic = new MenuItem { Header = L10n.T("Show IBMC on the first right-click (classic menu)"), IsCheckable = true, IsChecked = RightClick.ClassicMenu };
             classic.Click += (_, _) => RightClick.ClassicMenu = classic.IsChecked;
             menu.Items.Add(classic);
         }
+        var style = new MenuItem { Header = L10n.T("Style") };
+        foreach (var (id, title) in new[] { ("glass", "Glass"), ("light", "Light"), ("dark", "Dark") })
+        {
+            var option = new MenuItem { Header = L10n.T(title), IsCheckable = true, IsChecked = Theme.Style == id };
+            option.Click += (_, _) =>
+            {
+                if (id == Theme.Style) { option.IsChecked = true; return; }
+                Settings.Current.Style = id;
+                Settings.Current.Save();
+                AdawatApp.Restart();
+            };
+            style.Items.Add(option);
+        }
+        menu.Items.Add(style);
         menu.Items.Add(new Separator());
         menu.Items.Add(Item("Welcome Guide…", WelcomeWindow.Present, ""));
         menu.Items.Add(Item("Settings…", SettingsWindow.Present, ""));

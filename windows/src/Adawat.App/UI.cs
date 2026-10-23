@@ -177,12 +177,11 @@ public class ToolWindow : Window
         SizeToContent = SizeToContent.Height;
         ResizeMode = ResizeMode.NoResize;
         WindowStartupLocation = WindowStartupLocation.CenterScreen;
-        Background = Theme.Surface;
-        Foreground = Theme.Ink;
+        Theme.Apply(this);
         FontFamily = Theme.Font;
         FlowDirection = Theme.Direction;
         Icon = new System.Windows.Media.Imaging.BitmapImage(new Uri("pack://application:,,,/Assets/Adawat.ico"));
-        WindowChrome.SetWindowChrome(this, new WindowChrome { CaptionHeight = 44, ResizeBorderThickness = new Thickness(0), GlassFrameThickness = new Thickness(0, 0, 0, 1), UseAeroCaptionButtons = false });
+        WindowChrome.SetWindowChrome(this, new WindowChrome { CaptionHeight = 44, ResizeBorderThickness = new Thickness(0), GlassFrameThickness = Theme.UsesBackdrop ? new Thickness(-1) : new Thickness(0, 0, 0, 1), UseAeroCaptionButtons = false });
         var header = new Grid { Height = 44 };
         header.Children.Add(new TextBlock { Text = Title, FontFamily = Theme.Font, FontSize = 15, FontWeight = FontWeights.SemiBold, Foreground = Theme.Ink, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center });
         var close = UI.IconButton("", Close, "Close", 24);

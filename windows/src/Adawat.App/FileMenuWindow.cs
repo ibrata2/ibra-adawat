@@ -9,7 +9,7 @@ using Adawat.Core;
 namespace Adawat.App;
 
 /// <summary>
-/// The menu that opens from Explorer's right-click "IBRA أدوات": the selected files, three tabs (Tools, Convert, Actions)
+/// The menu that opens from Explorer's right-click "IBMC": the selected files, three tabs (Tools, Convert, Actions)
 /// and every choice that fits them as a list. A click runs the choice, or opens its options window first.
 /// </summary>
 public sealed class FileMenuWindow : Window
@@ -41,7 +41,7 @@ public sealed class FileMenuWindow : Window
         Width = 320;
         FontFamily = Theme.Font;
         FlowDirection = Theme.Direction;
-        Title = "IBRA أدوات";
+        Title = "IBMC";
 
         var root = new DockPanel { LastChildFill = true };
 
@@ -49,7 +49,7 @@ public sealed class FileMenuWindow : Window
         var header = new StackPanel { Margin = new Thickness(14, 12, 14, 8) };
         var brand = new StackPanel { Orientation = Orientation.Horizontal };
         brand.Children.Add(new Border { Width = 8, Height = 8, CornerRadius = new CornerRadius(4), Background = Theme.Accent, Margin = new Thickness(0, 0, 8, 0), VerticalAlignment = VerticalAlignment.Center });
-        brand.Children.Add(UI.Text("IBRA أدوات", 13, FontWeights.Bold));
+        brand.Children.Add(UI.Text("IBMC", 13, FontWeights.Bold));
         header.Children.Add(brand);
         var what = UI.Text(files.Count == 1 ? Path.GetFileName(files[0]) : L10n.T($"{files.Count} items"), 11.5, color: Theme.Muted);
         what.TextTrimming = TextTrimming.CharacterEllipsis;
@@ -79,7 +79,7 @@ public sealed class FileMenuWindow : Window
         var open = new Border { Padding = new Thickness(14, 9, 14, 11), Cursor = Cursors.Hand, Background = Brushes.Transparent };
         var openRow = new StackPanel { Orientation = Orientation.Horizontal };
         openRow.Children.Add(UI.Icon("\uE8A7", 12, Theme.Accent));
-        openRow.Children.Add(UI.Text("Open in the IBRA Adawat window", 12, color: Theme.Muted).Pad(8, 0));
+        openRow.Children.Add(UI.Text("Open in the IBMC window", 12, color: Theme.Muted).Pad(8, 0));
         open.Child = openRow;
         open.MouseEnter += (_, _) => open.Background = Theme.ButtonHover;
         open.MouseLeave += (_, _) => open.Background = Brushes.Transparent;
@@ -97,7 +97,7 @@ public sealed class FileMenuWindow : Window
 
         Content = new Border
         {
-            Background = Theme.Surface, CornerRadius = new CornerRadius(14), BorderBrush = Theme.Hairline, BorderThickness = new Thickness(1),
+            Background = Theme.SolidSurface, CornerRadius = new CornerRadius(14), BorderBrush = Theme.Hairline, BorderThickness = new Thickness(1),
             Child = root, Margin = new Thickness(10),
             Effect = new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 20, ShadowDepth = 4, Direction = 270, Opacity = 0.45 },
         };

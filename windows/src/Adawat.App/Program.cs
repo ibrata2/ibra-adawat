@@ -19,7 +19,12 @@ public static class Program
             return Snapshots.Run(app, args.Where((a, i) => a != "--lang" && (i == 0 || args[i - 1] != "--lang")).ToArray());
         }
         var opened = RightClick.FilesIn(args);
-        using var single = new Mutex(true, "Local\\IbraAdawat.SingleInstance", out var first);
+        using var single = new Mutex(true, "Local\\IBMC.SingleInstance", out var first);
+        if (!first && args.Contains("--restart"))
+        {
+            // Restarting (style or language changed): wait for the old copy to let go.
+            try { first = single.WaitOne(TimeSpan.FromSeconds(15)); } catch (AbandonedMutexException) { first = true; }
+        }
         if (!first)
         {
             // Started from the right-click menu while the app runs: pass the files over and leave.
@@ -80,7 +85,7 @@ public sealed class AdawatApp : Application
         {
             Settings.Current.HasSeenWelcome = true;
             Settings.Current.Save();
-            Hud.Shared.ShowMessage(L10n.T("Right-click any file and choose IBRA Adawat"), Hud.Style.Success);
+            Hud.Shared.ShowMessage(L10n.T("Right-click any file and choose IBMC"), Hud.Style.Success);
         }
     }
 
@@ -103,6 +108,14 @@ public sealed class AdawatApp : Application
             timer.Start();
         };
         _drags.Start();
+    }
+
+    /// <summary>Starts a new copy and closes this one; the new copy waits for this one to finish.</summary>
+    public static void Restart()
+    {
+        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(Environment.ProcessPath!, "--restart") { UseShellExecute = false });
+        HomeWindow.Quit();
+        Current.Shutdown();
     }
 
     protected override void OnExit(ExitEventArgs e)

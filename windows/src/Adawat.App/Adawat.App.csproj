@@ -4,7 +4,7 @@
     <OutputType>WinExe</OutputType>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>false</UseWindowsForms>
-    <AssemblyName>IbraAdawat</AssemblyName>
+    <AssemblyName>IBMC</AssemblyName>
     <RootNamespace>Adawat.App</RootNamespace>
     <ApplicationIcon>..\..\assets\Adawat.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>

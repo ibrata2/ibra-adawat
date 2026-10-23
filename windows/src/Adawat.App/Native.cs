@@ -120,4 +120,20 @@ internal static partial class Native
         var value = dark ? 1 : 0;
         DwmSetWindowAttribute(window, DWMWA_USE_IMMERSIVE_DARK_MODE, ref value, sizeof(int));
     }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct MARGINS { public int Left, Right, Top, Bottom; }
+
+    [LibraryImport("dwmapi.dll")]
+    public static partial int DwmExtendFrameIntoClientArea(IntPtr window, ref MARGINS margins);
+
+    /// <summary>Windows 11 acrylic behind the whole window (the client area must be transparent for it to show).</summary>
+    public static void Acrylic(IntPtr window)
+    {
+        var margins = new MARGINS { Left = -1, Right = -1, Top = -1, Bottom = -1 };
+        DwmExtendFrameIntoClientArea(window, ref margins);
+        var backdrop = 3; // DWMSBT_TRANSIENTWINDOW: acrylic
+        DwmSetWindowAttribute(window, DWMWA_SYSTEMBACKDROP_TYPE, ref backdrop, sizeof(int));
+        RoundCorners(window);
+    }
 }
