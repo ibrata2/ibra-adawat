@@ -9,6 +9,7 @@ public static class Output
         {
             case OutputLocation.Downloads: return Downloads;
             case OutputLocation.Desktop: return DesktopFolder;
+            case OutputLocation.Custom when System.IO.Directory.Exists(Settings.Current.CustomOutputFolder): return Settings.Current.CustomOutputFolder;
         }
         var parent = Path.GetDirectoryName(Path.GetFullPath(source)) ?? Downloads;
         return IsWritable(parent) ? parent : Downloads;
@@ -18,12 +19,12 @@ public static class Output
     public static string Downloads =>
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
 
-    private static string DesktopFolder => Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+    public static string DesktopFolder => Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
 #else
     // On Linux the folders have translated names (التنزيلات on an Arabic system), listed in ~/.config/user-dirs.dirs.
     public static string Downloads => Desktop.UserFolder("DOWNLOAD", "Downloads");
 
-    private static string DesktopFolder => Desktop.UserFolder("DESKTOP", "Desktop");
+    public static string DesktopFolder => Desktop.UserFolder("DESKTOP", "Desktop");
 #endif
 
     /// <summary>A free path named after <paramref name="source"/>, with a new extension and optional suffix.</summary>

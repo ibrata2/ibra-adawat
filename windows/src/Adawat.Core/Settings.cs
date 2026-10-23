@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace Adawat.Core;
 
-public enum OutputLocation { NextToOriginal, Downloads, Desktop }
+public enum OutputLocation { NextToOriginal, Downloads, Desktop, Custom }
 
 public enum CompressPreset { Light, Balanced, Strong }
 
@@ -39,6 +39,11 @@ public sealed class Settings
     // IBRA additions
     /// <summary>"glass" (default), "light" or "dark".</summary>
     public string Style { get; set; } = "glass";
+    /// <summary>The folder results go to when OutputLocation is Custom.</summary>
+    public string CustomOutputFolder { get; set; } = "";
+    /// <summary>Tasks added from the main window start right away; off, they wait for Start.</summary>
+    public bool AutoStart { get; set; } = true;
+    public int HomeSection { get; set; }
     public bool UseDragWheel { get; set; }
     public string TranscribeSpoken { get; set; } = "auto";
     public string TranscribeTarget { get; set; } = "";

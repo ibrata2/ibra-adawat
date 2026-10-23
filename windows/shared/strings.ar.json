@@ -650,5 +650,10 @@
  "IBMC restarts to change the language.": "يُعاد تشغيل IBMC لتغيير اللغة.",
  "Glass": "زجاجي",
  "Dark": "ليلي (داكن)",
- "Show IBMC on the first right-click (classic menu)": "إظهار IBMC من أول كليك يمين (القائمة الكلاسيكية)"
+ "Show IBMC on the first right-click (classic menu)": "إظهار IBMC من أول كليك يمين (القائمة الكلاسيكية)",
+ "Starting…": "يبدأ…",
+ "Waiting": "بالانتظار",
+ "Working…": "جاري العمل…",
+ "Done": "تم",
+ "Stopped": "توقف"
 }
