@@ -56,7 +56,7 @@ public static class SettingsWindow
             AdawatApp.Restart();
         });
         restart.Visibility = Visibility.Collapsed;
-        stack.Children.Add(UI.Row("Style", UI.Picker([("glass", "Glass"), ("light", "Light"), ("dark", "Dark")], Theme.Style, v =>
+        stack.Children.Add(UI.Row("Style", UI.Picker(Theme.Styles.Select(x => (x.Id, L10n.IsArabic ? x.Arabic : x.English)).ToList(), Theme.Style, v =>
         {
             if (v == Theme.Style) return;
             settings.Style = v;

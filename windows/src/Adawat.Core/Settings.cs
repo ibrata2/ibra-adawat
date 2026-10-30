@@ -37,8 +37,8 @@ public sealed class Settings
     public string Language { get; set; } = "ar";
 
     // IBRA additions
-    /// <summary>"glass" (default), "light" or "dark".</summary>
-    public string Style { get; set; } = "glass";
+    /// <summary>glass-red-white (default), glass-white, glass-red-black, glass-clear or system.</summary>
+    public string Style { get; set; } = "glass-red-white";
     /// <summary>The folder results go to when OutputLocation is Custom.</summary>
     public string CustomOutputFolder { get; set; } = "";
     /// <summary>Tasks added from the main window start right away; off, they wait for Start.</summary>

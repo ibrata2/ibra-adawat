@@ -63,9 +63,9 @@ public sealed class Tray : IDisposable
             menu.Items.Add(classic);
         }
         var style = new MenuItem { Header = L10n.T("Style") };
-        foreach (var (id, title) in new[] { ("glass", "Glass"), ("light", "Light"), ("dark", "Dark") })
+        foreach (var (id, english, arabic) in Theme.Styles)
         {
-            var option = new MenuItem { Header = L10n.T(title), IsCheckable = true, IsChecked = Theme.Style == id };
+            var option = new MenuItem { Header = L10n.IsArabic ? arabic : english, IsCheckable = true, IsChecked = Theme.Style == id };
             option.Click += (_, _) =>
             {
                 if (id == Theme.Style) { option.IsChecked = true; return; }
