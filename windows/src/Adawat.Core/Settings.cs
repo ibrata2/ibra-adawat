@@ -44,6 +44,9 @@ public sealed class Settings
     /// <summary>Tasks added from the main window start right away; off, they wait for Start.</summary>
     public bool AutoStart { get; set; } = true;
     public int HomeSection { get; set; }
+    public bool AutoCheckUpdates { get; set; } = true;
+    /// <summary>A release tag the user chose to skip; the start-up check stays quiet about it.</summary>
+    public string SkippedUpdate { get; set; } = "";
     public bool UseDragWheel { get; set; }
     public string TranscribeSpoken { get; set; } = "auto";
     public string TranscribeTarget { get; set; } = "";

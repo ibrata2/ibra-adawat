@@ -49,6 +49,21 @@ public static class SettingsWindow
                                                         settings.VideoQuality, v => { settings.VideoQuality = v; Save(); })));
         stack.Children.Add(UI.Divider());
 
+        Section(L10n.IsArabic ? "التحديثات" : "Updates");
+        var updateState = UI.Caption(L10n.IsArabic ? $"نسختك الحالية: {Updater.CurrentText}" : $"Current version: {Updater.CurrentText}");
+        Button? checkButton = null;
+        checkButton = UI.Button(L10n.IsArabic ? "البحث عن تحديث" : "Check for Updates", async () =>
+        {
+            checkButton!.IsEnabled = false;
+            await Updater.CheckNow(text => updateState.Text = text);
+            checkButton.IsEnabled = true;
+        }, icon: "\uE895");
+        stack.Children.Add(UI.Row(L10n.IsArabic ? "التحديث" : "Update", checkButton, 36));
+        stack.Children.Add(updateState);
+        stack.Children.Add(UI.Check(L10n.IsArabic ? "البحث عن نسخة جديدة عند التشغيل" : "Look for a new version when IBMC starts",
+                                    settings.AutoCheckUpdates, v => { settings.AutoCheckUpdates = v; Save(); }).Pad(0, 4));
+        stack.Children.Add(UI.Divider());
+
         Section("General");
         stack.Children.Add(UI.Check("Start IBMC when Windows starts", Startup.IsEnabled, Startup.Set).Pad(0, 4));
         var restart = UI.Button("Restart Now", () =>

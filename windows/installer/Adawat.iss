@@ -112,6 +112,8 @@ Root: HKCU; Subkey: "Software\Classes\Directory\shell\IBMC\command"; ValueType: 
 
 [Run]
 Filename: "{app}\IBMC.exe"; Description: "{cm:Launch}"; Flags: nowait postinstall skipifsilent
+; An update from inside IBMC runs this installer silently; start IBMC again when it is done.
+Filename: "{app}\IBMC.exe"; Flags: nowait; Check: WizardSilent
 
 [UninstallRun]
 Filename: "{sys}\taskkill.exe"; Parameters: "/im IBMC.exe /f"; Flags: runhidden; RunOnceId: "StopIBMC"

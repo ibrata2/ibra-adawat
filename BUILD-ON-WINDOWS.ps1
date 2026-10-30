@@ -49,7 +49,7 @@ Copy-Item $exe.FullName "$tools\realesrgan"; Get-ChildItem $exe.DirectoryName -F
 Get-ChildItem $exe.DirectoryName -Recurse -Filter "realesrgan-x4plus.*" | Where-Object { $_.Name -notlike "*anime*" } | Copy-Item -Destination "$tools\realesrgan\models"
 
 Set-Location installer
-& $iscc /Q /DArch=x64 /DAppVersion=1.1.0 "/DSource=..\build\publish\app-x64" Adawat.iss
+& $iscc /Q /DArch=x64 /DAppVersion=2.0.0 "/DSource=..\build\publish\app-x64" Adawat.iss
 if ($LASTEXITCODE) { throw "Installer failed." }
 Write-Host "`nDone: windows\build\installer\IBMC-Setup-x64.exe" -ForegroundColor Green
 explorer.exe (Resolve-Path ..\build\installer)

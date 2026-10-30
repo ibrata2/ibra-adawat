@@ -79,6 +79,7 @@ public sealed class AdawatApp : Application
             return dialog.ShowDialog() == true ? dialog.FolderName : null;
         }));
         _tray = new Tray();
+        Updater.CheckOnStart();
         if (_opened.Length > 0) RightClick.Add(_opened);
         else if (!_background) HomeWindow.Present();
         if (!Settings.Current.HasSeenWelcome && _opened.Length == 0)

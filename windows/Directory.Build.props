@@ -10,8 +10,8 @@
     <LangVersion>latest</LangVersion>
     <RuntimeIdentifiers>win-arm64;win-x64</RuntimeIdentifiers>
     <RuntimeIdentifiers Condition="'$(TargetFramework)' == 'net10.0'">linux-x64;linux-arm64</RuntimeIdentifiers>
-    <Version>1.1.0</Version>
-    <InformationalVersion>IBMC 2.0 — Ibrahim Multimedia Converter (based on Adawat 1.1.0)</InformationalVersion>
+    <!-- The release build passes -p:Version=2.0.<run>; the in-app updater compares it with the latest GitHub release. -->
+    <Version Condition="'$(Version)' == '' Or '$(Version)' == '1.0.0'">2.0.0</Version>
     <Company>Ibrahim Rosem — based on Adawat by Motalim</Company>
     <Product>IBMC</Product>
     <Copyright>Motalim · GPL v3</Copyright>
