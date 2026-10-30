@@ -179,14 +179,16 @@ public class ToolWindow : Window
         WindowStartupLocation = WindowStartupLocation.CenterScreen;
         Theme.Apply(this);
         FontFamily = Theme.Font;
-        FlowDirection = Theme.Direction;
+        // The window itself stays left-to-right so its title bar is never mirrored; the content follows the language.
+        FlowDirection = FlowDirection.LeftToRight;
         Icon = new System.Windows.Media.Imaging.BitmapImage(new Uri("pack://application:,,,/Assets/Adawat.ico"));
         WindowChrome.SetWindowChrome(this, new WindowChrome { CaptionHeight = 44, ResizeBorderThickness = new Thickness(0), GlassFrameThickness = Theme.UsesBackdrop ? new Thickness(-1) : new Thickness(0, 0, 0, 1), UseAeroCaptionButtons = false });
-        var header = new Grid { Height = 44 };
+        var header = new Grid { Height = 44, FlowDirection = FlowDirection.LeftToRight };
         header.Children.Add(new TextBlock { Text = Title, FontFamily = Theme.Font, FontSize = 15, FontWeight = FontWeights.SemiBold, Foreground = Theme.Ink, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center });
         var close = UI.IconButton("", Close, "Close", 24);
-        close.HorizontalAlignment = HorizontalAlignment.Left;
-        close.Margin = new Thickness(12, 0, 0, 0);
+        // Close sits at the top right in Arabic and English alike.
+        close.HorizontalAlignment = HorizontalAlignment.Right;
+        close.Margin = new Thickness(0, 0, 12, 0);
         WindowChrome.SetIsHitTestVisibleInChrome(close, true);
         header.Children.Add(close);
         DockPanel.SetDock(_leading, Dock.Left);
@@ -206,6 +208,7 @@ public class ToolWindow : Window
         stack.Children.Add(line2);
         _body.Margin = new Thickness(16);
         stack.Children.Add(_body);
+        stack.FlowDirection = Theme.Direction;
         Content = stack;
         KeyDown += (_, e) => { if (e.Key == Key.Escape) Close(); };
         SourceInitialized += (_, _) => Native.RoundCorners(new WindowInteropHelper(this).Handle);

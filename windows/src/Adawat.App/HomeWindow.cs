@@ -66,7 +66,8 @@ public sealed class HomeWindow : Window
         WindowStartupLocation = WindowStartupLocation.CenterScreen;
         Theme.Apply(this);
         FontFamily = Theme.Font;
-        FlowDirection = Theme.Direction;
+        // Minimise, maximise and close stay at the top right in Arabic too: only the content is mirrored.
+        FlowDirection = FlowDirection.LeftToRight;
         Icon = new System.Windows.Media.Imaging.BitmapImage(new Uri("pack://application:,,,/Assets/Adawat.ico"));
         AllowDrop = true;
 
@@ -193,6 +194,7 @@ public sealed class HomeWindow : Window
         Grid.SetColumn(tasksSide, 2);
         body.Children.Add(tasksSide);
         root.Children.Add(body);
+        root.FlowDirection = Theme.Direction;
         Content = root;
 
         // Files dropped anywhere outside a tile wait for a tile; their section opens.
