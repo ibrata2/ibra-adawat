@@ -159,6 +159,8 @@ public static class Catalog
             ops.Add(Tool("image.qr", "Read QR Code", "QR Code", Icons.Qr, ImageOps.ReadQrCodes, producesFiles: false));
             ops.Add(Tool("ibra.watermark", "Watermark", null, Icons.Stamp, SocialOps.WatermarkQuick, "watermark"));
             ops.Add(Tool("ibra.social", "Social Size", "Size", Icons.Resize, SocialOps.ResizeQuick, "social"));
+            ops.Add(Tool("ibra.noai", "Remove AI Info", "No AI Info", "\uE8F8", AiInfo.Remove));
+            ops.Add(Tool("ibra.aicheck", "Check for AI Info", "AI Check", "\uE721", AiInfo.Check, producesFiles: false));
             ops.Add(Tool("ibra.nobg", "Remove Background", "No BG", Icons.Cutout, BackgroundRemoval.Remove));
             ops.Add(Tool("ibra.upscale", "Enlarge with AI", "AI ×2", Icons.Upscale, Upscale.Quick, "upscale"));
             ops.Add(Tool("ibra.sticker", "WhatsApp Sticker", "Sticker", Icons.Sticker, SocialOps.Sticker));
