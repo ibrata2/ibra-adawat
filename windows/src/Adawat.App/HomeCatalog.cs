@@ -77,6 +77,8 @@ public static class HomeCatalog
             To("image", "heic", "HEIC"), To("image", "tiff", "TIFF"), To("image", "bmp", "BMP"), To("image", "ico", "ICO"),
             new("image.pdf", "To PDF", "إلى PDF", "", "PDF") { Together = true },
             new("image.compress", "Compress", "ضغط الصور", ""),
+            new("ibra.noai", "Remove AI Info", "إزالة معلومات الذكاء الاصطناعي", "\uE8F8") { Together = true },
+            new("ibra.aicheck", "Check for AI Info", "فحص معلومات الذكاء الاصطناعي", "\uE721") { Together = true },
             new("ibra.nobg", "Remove Background", "إزالة الخلفية", ""),
             new("ibra.upscale", "Enlarge with AI", "تكبير بالذكاء الاصطناعي", ""),
             new("image.edit", "Edit Photo", "تعديل الصورة", ""),
