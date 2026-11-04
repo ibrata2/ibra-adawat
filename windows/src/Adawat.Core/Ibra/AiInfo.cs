@@ -147,7 +147,7 @@ public static class AiInfo
         byte[]? cleaned = null;
         try
         {
-            if (IsJpeg(bytes) && Orientation(file) is OrientationType.TopLeft or OrientationType.Undefined) cleaned = CleanJpeg(bytes);
+            if (IsJpeg(bytes) && Orientation(file) is "TopLeft" or "Undefined") cleaned = CleanJpeg(bytes);
             else if (IsPng(bytes)) cleaned = CleanPng(bytes);
             else if (IsWebP(bytes)) cleaned = CleanWebP(bytes);
         }
@@ -173,15 +173,16 @@ public static class AiInfo
         return target;
     }
 
-    private static OrientationType Orientation(string file)
+    /// <summary>The EXIF orientation by name ("TopLeft" means already upright).</summary>
+    private static string Orientation(string file)
     {
         try
         {
             using var image = new MagickImage();
             image.Ping(file);
-            return image.Orientation;
+            return image.Orientation.ToString();
         }
-        catch (MagickException) { return OrientationType.Undefined; }
+        catch (MagickException) { return "Undefined"; }
     }
 
     // MARK: JPEG
