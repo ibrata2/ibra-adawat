@@ -154,5 +154,8 @@
  "Removing AI information {1} of {2}": "إزالة معلومات الذكاء الاصطناعي {1} من {2}",
  "AI information removed from {1} of {2} images": "انشالت معلومات الذكاء الاصطناعي من {1} من {2} صور",
  "No AI information was found; saved {1} clean copies": "ما چانت بيها معلومات ذكاء اصطناعي؛ انحفظت {1} نسخ نظيفة",
- "Cleaned {1} of {2}; some information could not be removed": "انظفت {1} من {2}؛ بعض المعلومات ما انشالت"
+ "Cleaned {1} of {2}; some information could not be removed": "انظفت {1} من {2}؛ بعض المعلومات ما انشالت",
+ "No AI information found in {1} files": "ما لكيت معلومات ذكاء اصطناعي بـ {1} ملفات",
+ "AI information found in {1} of {2} files": "لكيت معلومات ذكاء اصطناعي بـ {1} من {2} ملفات",
+ "AI information removed from {1} of {2} files": "انشالت معلومات الذكاء الاصطناعي من {1} من {2} ملفات"
 }

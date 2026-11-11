@@ -187,6 +187,8 @@ public static class Catalog
         {
             ops.Add(Tool("video.compress", "Compress", null, Icons.Compress, (f, c) => Compression.Videos(f, CompressSettings.Saved, c), "compress"));
             ops.Add(Tool("video.metadata", "Remove Metadata", "Metadata", Icons.Metadata, MediaOps.StripMetadata));
+            ops.Add(Tool("ibra.noai.video", "Remove AI Info", "No AI Info", "\uE8F8", AiInfo.RemoveMedia));
+            ops.Add(Tool("ibra.aicheck.video", "Check for AI Info", "AI Check", "\uE721", AiInfo.CheckMedia, producesFiles: false));
             if (single)
             {
                 ops.Add(Tool("video.trim", "Trim", null, Icons.Trim, NeedsWindow, "trim"));
@@ -221,6 +223,8 @@ public static class Catalog
         {
             ops.Add(Tool("audio.compress", "Compress", null, Icons.Compress, (f, c) => Compression.Audio(f, CompressSettings.Saved, c), "compress"));
             ops.Add(Tool("audio.metadata", "Remove Metadata", "Metadata", Icons.Metadata, MediaOps.StripMetadata));
+            ops.Add(Tool("ibra.noai.audio", "Remove AI Info", "No AI Info", "\uE8F8", AiInfo.RemoveMedia));
+            ops.Add(Tool("ibra.aicheck.audio", "Check for AI Info", "AI Check", "\uE721", AiInfo.CheckMedia, producesFiles: false));
             ops.Add(Tool("audio.normalize", "Normalize Volume", "Normalize", Icons.Volume, MediaOps.Normalize, single ? "normalize" : null));
             if (single)
             {

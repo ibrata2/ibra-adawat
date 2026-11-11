@@ -56,6 +56,8 @@ public static class HomeCatalog
             new("ibra.sticker", "WhatsApp Sticker", "ستيكر واتساب", ""),
             new("video.redact", "Redact", "إخفاء أجزاء", ""),
             new("video.metadata", "Remove Metadata", "حذف البيانات", ""),
+            new("ibra.noai.video", "Remove AI Info", "إزالة معلومات الذكاء الاصطناعي", "\uE8F8") { Together = true },
+            new("ibra.aicheck.video", "Check for AI Info", "فحص معلومات الذكاء الاصطناعي", "\uE721") { Together = true },
         ]),
         new("Audio", "الصوت", "", Color.FromRgb(0x8E, 0x44, 0xFF), [FileKind.Audio, FileKind.Video], $"Audio and video|{AudioExt};{VideoExt}",
         [
@@ -70,6 +72,8 @@ public static class HomeCatalog
             new("audio.visualizer", "Audio Visualizer", "فيديو بموجة الصوت", "") { Kinds = [FileKind.Audio] },
             new("ibra.transcribe", "Speech to Text", "الكلام إلى نص", ""),
             new("audio.metadata", "Remove Metadata", "حذف البيانات", "") { Kinds = [FileKind.Audio] },
+            new("ibra.noai.audio", "Remove AI Info", "إزالة معلومات الذكاء الاصطناعي", "\uE8F8") { Together = true, Kinds = [FileKind.Audio] },
+            new("ibra.aicheck.audio", "Check for AI Info", "فحص معلومات الذكاء الاصطناعي", "\uE721") { Together = true, Kinds = [FileKind.Audio] },
         ]),
         new("Image", "الصورة", "", Color.FromRgb(0x1F, 0xA8, 0x5C), [FileKind.Image], $"Images|{ImageExt}",
         [

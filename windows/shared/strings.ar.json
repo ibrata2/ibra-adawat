@@ -662,5 +662,6 @@
  "AI Check": "فحص AI",
  "No AI information found in this image": "ما لكيت معلومات ذكاء اصطناعي بهاي الصورة",
  "AI information removed": "انشالت معلومات الذكاء الاصطناعي",
- "No AI information was found; saved a clean copy": "ما چانت بيها معلومات ذكاء اصطناعي؛ انحفظت نسخة نظيفة"
+ "No AI information was found; saved a clean copy": "ما چانت بيها معلومات ذكاء اصطناعي؛ انحفظت نسخة نظيفة",
+ "No AI information found in this file": "ما لكيت معلومات ذكاء اصطناعي بهذا الملف"
 }

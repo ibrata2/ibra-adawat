@@ -24,6 +24,10 @@ public static class AiInfo
         ("ComfyUI", "ComfyUI"), ("\"workflow\"", "ComfyUI workflow"), ("Negative prompt", "Stable Diffusion prompt"),
         ("sd-metadata", "Stable Diffusion"), ("NovelAI", "NovelAI"), ("Imagen", "Google Imagen"), ("Gemini", "Google Gemini"),
         ("SynthID", "Google SynthID tag"), ("Leonardo.Ai", "Leonardo"), ("Ideogram", "Ideogram"), ("Flux", "Flux"), ("Grok", "Grok"),
+        ("Suno", "Suno"), ("Udio", "Udio"), ("ElevenLabs", "ElevenLabs"), ("Mubert", "Mubert"), ("AIVA", "AIVA"), ("Soundraw", "Soundraw"),
+        ("Boomy", "Boomy"), ("Riffusion", "Riffusion"), ("Sora", "OpenAI Sora"), ("Veo", "Google Veo"), ("Runway", "Runway"), ("Pika", "Pika"),
+        ("Kling", "Kling"), ("Hailuo", "Hailuo"), ("MiniMax", "MiniMax"), ("Luma", "Luma"), ("Dream Machine", "Luma"), ("Synthesia", "Synthesia"),
+        ("HeyGen", "HeyGen"), ("Higgsfield", "Higgsfield"), ("Vidu", "Vidu"), ("Hunyuan", "Hunyuan"), ("Wan2", "Wan"),
         ("Bing Image Creator", "Bing Image Creator"), ("Microsoft Designer", "Microsoft Designer"), ("Canva", "Canva"),
     ];
 
@@ -35,14 +39,8 @@ public static class AiInfo
         string text;
         try { text = Encoding.Latin1.GetString(MetadataBytes(bytes)); }
         catch (Exception e) when (e is ArgumentException or IndexOutOfRangeException or InvalidDataException) { text = Encoding.Latin1.GetString(bytes, 0, Math.Min(bytes.Length, 1 << 18)); }
-        var found = new List<string>();
-        foreach (var (needle, label) in Signs)
-        {
-            if (found.Contains(label)) continue;
-            if (text.Contains(needle, StringComparison.OrdinalIgnoreCase) ||
-                text.Contains(string.Join("\0", needle.ToCharArray()), StringComparison.OrdinalIgnoreCase)) found.Add(label);
-        }
-        return found;
+        // UTF-16 text (as in some EXIF fields) is folded to plain letters so the same search finds it.
+        return Match(text + "\n" + text.Replace("\0", ""));
     }
 
     /// <summary>Only the metadata parts of a file (never the compressed picture), so picture bytes can't match by chance.</summary>
@@ -294,5 +292,132 @@ public static class AiInfo
         BinaryPrimitives.WriteUInt32LittleEndian(result.AsSpan(4), (uint)content.Length);
         content.CopyTo(result, 8);
         return result;
+    }
+
+    // MARK: Audio and video
+
+    /// <summary>What an audio or video file says about AI: its container and stream tags, and any C2PA box in an MP4/MOV.</summary>
+    public static async Task<IReadOnlyList<string>> ScanMedia(string file, CancellationToken cancellation = default)
+    {
+        var text = new StringBuilder();
+        if (ProcessRunner.Find("ffprobe") is { } ffprobe)
+        {
+            var result = await ProcessRunner.Run(ffprobe, ["-v", "error", "-show_entries", "format_tags:stream_tags:chapter_tags", "-of", "json", file],
+                                                 cancellation: cancellation);
+            text.Append(result.Output);
+        }
+        text.Append(Mp4Boxes(file));
+        return Match(text.ToString());
+    }
+
+    /// <summary>The labels of every sign found in <paramref name="text"/>. Names count only as whole words, so "Sora" inside
+    /// another word, or "Veo" in random bytes between letters, does not match.</summary>
+    private static List<string> Match(string text)
+    {
+        var found = new List<string>();
+        foreach (var (needle, label) in Signs)
+        {
+            if (found.Contains(label)) continue;
+            var at = 0;
+            while ((at = text.IndexOf(needle, at, StringComparison.OrdinalIgnoreCase)) >= 0)
+            {
+                var before = at == 0 || !char.IsLetter(text[at - 1]);
+                var after = at + needle.Length >= text.Length || !char.IsLetter(text[at + needle.Length]);
+                if (before && after) { found.Add(label); break; }
+                at += needle.Length;
+            }
+        }
+        return found;
+    }
+
+    /// <summary>The names of an MP4/MOV's top-level boxes, plus the first bytes of any "uuid" box, where C2PA manifests live.</summary>
+    private static string Mp4Boxes(string file)
+    {
+        var ext = FileKinds.Ext(file);
+        if (ext is not ("mp4" or "m4v" or "mov" or "m4a" or "3gp" or "heic" or "avif")) return "";
+        var text = new StringBuilder();
+        try
+        {
+            using var stream = File.OpenRead(file);
+            var header = new byte[16];
+            long position = 0;
+            for (var count = 0; count < 200 && position + 8 <= stream.Length; count++)
+            {
+                stream.Position = position;
+                if (stream.Read(header, 0, 16) < 8) break;
+                long size = BinaryPrimitives.ReadUInt32BigEndian(header);
+                var type = Encoding.Latin1.GetString(header, 4, 4);
+                var headerSize = 8;
+                if (size == 1) { size = (long)BinaryPrimitives.ReadUInt64BigEndian(header.AsSpan(8)); headerSize = 16; }
+                else if (size == 0) size = stream.Length - position;
+                if (size < headerSize) break;
+                text.Append(type).Append(' ');
+                if (type is "uuid" or "jumb" or "c2pa" or "udta")
+                {
+                    var peek = new byte[(int)Math.Min(size, 4096)];
+                    stream.Position = position;
+                    var read = stream.Read(peek, 0, peek.Length);
+                    text.Append(Encoding.Latin1.GetString(peek, 0, read)).Append(' ');
+                }
+                position += size;
+            }
+        }
+        catch (IOException) { }
+        return text.ToString();
+    }
+
+    public static async Task<IReadOnlyList<string>> CheckMedia(IReadOnlyList<string> files, OperationContext context)
+    {
+        var lines = new List<string>();
+        var marked = 0;
+        IReadOnlyList<string> first = [];
+        for (var index = 0; index < files.Count; index++)
+        {
+            context.Progress((double)index / files.Count);
+            var found = await ScanMedia(files[index], context.Cancellation);
+            if (index == 0) first = found;
+            if (found.Count > 0) marked++;
+            lines.Add($"{Path.GetFileName(files[index])}: {(found.Count > 0 ? string.Join(", ", found) : "—")}");
+        }
+        Log(lines);
+        context.Finish(marked == 0
+            ? (files.Count == 1 ? "No AI information found in this file" : $"No AI information found in {files.Count} files")
+            : files.Count == 1 ? $"AI information found: {string.Join(", ", first.Take(3))}" : $"AI information found in {marked} of {files.Count} files");
+        return [];
+    }
+
+    /// <summary>
+    /// Re-wraps the file without re-encoding: same picture and sound, but no container or stream tags, chapters, cover art,
+    /// data tracks or C2PA boxes. Sound or pictures that carry a watermark inside the signal itself are left as they are.
+    /// </summary>
+    public static async Task<IReadOnlyList<string>> RemoveMedia(IReadOnlyList<string> files, OperationContext context)
+    {
+        var outputs = new List<string>();
+        var hadInfo = 0;
+        var stillMarked = new List<string>();
+        for (var index = 0; index < files.Count; index++)
+        {
+            var file = files[index];
+            context.Report($"Removing AI information {index + 1} of {files.Count}");
+            if ((await ScanMedia(file, context.Cancellation)).Count > 0) hadInfo++;
+            var info = await Media.MediaProbe.Info(file);
+            var ext = FileKinds.Ext(file);
+            var video = FileKinds.Of(file) == FileKind.Video;
+            List<string> args = [.. video ? new[] { "-map", "0:V?", "-map", "0:a?" } : ["-map", "0:a"],
+                                 "-map_metadata", "-1", "-map_metadata:s:v", "-1", "-map_metadata:s:a", "-1", "-map_chapters", "-1",
+                                 "-fflags", "+bitexact", "-flags:v", "+bitexact", "-flags:a", "+bitexact", "-c", "copy"];
+            if (ext == "mp3") args.AddRange(["-write_id3v1", "0", "-id3v2_version", "0"]);
+            if (ext is "mp4" or "m4v" or "mov" or "m4a") args.AddRange(["-movflags", "+faststart"]);
+            var output = Output.PathFor(file, ext, "clean");
+            await Media.MediaOps.Encode(file, output, args, info, context.ProgressFor(index, files.Count), context: context);
+            outputs.Add(output);
+            if ((await ScanMedia(output, context.Cancellation)) is { Count: > 0 } left) stillMarked.Add($"{Path.GetFileName(file)}: {string.Join(", ", left)}");
+        }
+        if (stillMarked.Count > 0) Log(stillMarked);
+        context.Finish(stillMarked.Count > 0
+            ? $"Cleaned {files.Count - stillMarked.Count} of {files.Count}; some information could not be removed"
+            : hadInfo == 0 ? (files.Count == 1 ? "No AI information was found; saved a clean copy" : $"No AI information was found; saved {files.Count} clean copies")
+            : files.Count == 1 ? "AI information removed" : $"AI information removed from {hadInfo} of {files.Count} files");
+        return outputs;
     }
 }
