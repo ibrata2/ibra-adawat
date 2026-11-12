@@ -157,10 +157,12 @@ jobs:
           echo "sdk=$sdk ndk=$ndk cmake=$cmake home=$ANDROID_HOME"
           yes | "$sm" --licenses > /dev/null || true
           [ -x "$sm" ] || sm=$(ls -d "$ANDROID_HOME"/cmdline-tools/*/bin/sdkmanager | tail -1)
-          for package in "platforms;android-$sdk" "ndk;$ndk" "cmake;$cmake"; do
+          # Newer SDK lists name platforms "android-37.0".
+          "$sm" "platforms;android-$sdk" > /dev/null 2>&1 || "$sm" "platforms;android-$sdk.0" > /dev/null 2>&1 || true
+          for package in "ndk;$ndk" "cmake;$cmake"; do
             if ! "$sm" "$package" > "$RUNNER_TEMP/sdk.log" 2>&1; then
               echo "::error::Could not install $package: $(tail -3 "$RUNNER_TEMP/sdk.log" | tr '\n' ' ')"
-              echo "::error::Available: $("$sm" --list 2>/dev/null | grep -oE '(platforms;android-[0-9.]+|ndk;[0-9.]+|cmake;[0-9.]+)' | sort -u | tail -25 | tr '\n' ' ')"
+              echo "::error::Available: $("$sm" --list 2>/dev/null | grep -oE '(ndk;[0-9.]+|cmake;[0-9.]+)' | sort -u | tail -25 | tr '\n' ' ')"
               exit 1
             fi
           done
