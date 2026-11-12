@@ -94,6 +94,18 @@ public static class SettingsWindow
         var ffmpeg = ProcessRunner.Find("ffmpeg");
         stack.Children.Add(UI.Caption(ffmpeg != null ? $"ffmpeg: {ffmpeg}" : "ffmpeg is not installed. Install it with: winget install ffmpeg").Pad(0, 8));
 
+        stack.Children.Add(UI.Divider());
+        Section(L10n.IsArabic ? "حول" : "About");
+        stack.Children.Add(UI.Text("IBMC — Ibrahim Multimedia Converter", 13, FontWeights.SemiBold));
+        stack.Children.Add(UI.Text("برمجة وتطوير ابراهيم الخزرجي", 13).Pad(0, 2));
+        var links = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 6, 0, 0) };
+        void Open(string url) { try { Process.Start(new ProcessStartInfo(url) { UseShellExecute = true }); } catch (Exception) { } }
+        links.Children.Add(UI.Button("Telegram", () => Open("https://t.me/ibraprogram"), icon: "\uE724"));
+        links.Children.Add(new Border { Width = 8 });
+        links.Children.Add(UI.Button("TikTok · ibraprogram", () => Open("https://www.tiktok.com/@ibraprogram"), icon: "\uE8B2"));
+        stack.Children.Add(links);
+        stack.Children.Add(UI.Caption("Based on Adawat by Motalim · GPL v3").Pad(0, 4));
+
         window.Body = stack;
         window.Leading(UI.Button("Restore Defaults", () =>
         {
