@@ -141,12 +141,10 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: 21
-
-      - uses: android-actions/setup-android@v3
 
       - name: Install the SDK, NDK and CMake the app needs
         working-directory: android
@@ -154,8 +152,11 @@ jobs:
           ndk=$(sed -n 's/.*ndkVersion = "\(.*\)".*/\1/p' app/build.gradle.kts)
           sdk=$(sed -n 's/.*compileSdk = \([0-9]*\).*/\1/p' app/build.gradle.kts)
           cmake=$(sed -n 's/.*version = "\(4[^"]*\)".*/\1/p' app/build.gradle.kts | head -1)
-          yes | sdkmanager --licenses > /dev/null || true
-          sdkmanager "platforms;android-$sdk" "build-tools;36.0.0" "ndk;$ndk" "cmake;$cmake" > /dev/null || sdkmanager --list | grep -E "platforms;android-|ndk;|cmake;" | tail -20
+          # The runner already has the Android SDK; add what this app pins.
+          sm="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          echo "sdk=$sdk ndk=$ndk cmake=$cmake home=$ANDROID_HOME"
+          yes | "$sm" --licenses > /dev/null || true
+          "$sm" "platforms;android-$sdk" "ndk;$ndk" "cmake;$cmake" > /dev/null || { "$sm" --list | grep -E "platforms;android-3|ndk;29|cmake;4" | tail -30; exit 1; }
 
       - name: Fetch the native libraries
         working-directory: android
