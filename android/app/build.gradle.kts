@@ -8,23 +8,23 @@ android {
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "com.motalim.adawat"
+        applicationId = "com.ibrata2.ibmc"
         minSdk = 29
         targetSdk = 37
-        versionCode = 1
-        versionName = "1.1.0"
+        versionCode = (providers.gradleProperty("ibmc.versionCode").orNull ?: "1").toInt()
+        versionName = providers.gradleProperty("ibmc.versionName").orNull ?: "2.0.0"
         ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a", "x86_64") }
     }
 
     // The upload key stays outside the repository: its path and passwords come from ~/.gradle/gradle.properties
     // (adawat.storeFile, adawat.storePassword, adawat.keyAlias, adawat.keyPassword). Without them, release builds are unsigned.
-    val upload = providers.gradleProperty("adawat.storeFile").orNull
+    val upload = providers.gradleProperty("adawat.storeFile").orNull ?: System.getenv("IBMC_STORE_FILE")
     signingConfigs {
         if (upload != null) create("upload") {
             storeFile = file(upload)
-            storePassword = providers.gradleProperty("adawat.storePassword").get()
-            keyAlias = providers.gradleProperty("adawat.keyAlias").get()
-            keyPassword = providers.gradleProperty("adawat.keyPassword").get()
+            storePassword = providers.gradleProperty("adawat.storePassword").orNull ?: System.getenv("IBMC_STORE_PASSWORD")
+            keyAlias = providers.gradleProperty("adawat.keyAlias").orNull ?: System.getenv("IBMC_KEY_ALIAS")
+            keyPassword = providers.gradleProperty("adawat.keyPassword").orNull ?: System.getenv("IBMC_KEY_PASSWORD")
         }
     }
 

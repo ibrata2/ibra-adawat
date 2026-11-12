@@ -51,7 +51,7 @@ object Outputs {
     private fun uniqueFolder(context: Context, root: String, name: String): String {
         val files = MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
         fun taken(candidate: String) = context.contentResolver.query(
-            files, arrayOf(MediaStore.MediaColumns._ID), "${MediaStore.MediaColumns.RELATIVE_PATH} LIKE ?", arrayOf("$root/Adawat/$candidate/%"), null,
+            files, arrayOf(MediaStore.MediaColumns._ID), "${MediaStore.MediaColumns.RELATIVE_PATH} LIKE ?", arrayOf("$root/IBMC/$candidate/%"), null,
         )?.use { it.count > 0 } ?: false
         if (!taken(name)) return name
         var n = 2

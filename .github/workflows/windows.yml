@@ -1,4 +1,4 @@
-name: Build IBMC for Windows
+name: Build IBMC (Windows, Android, iPhone)
 
 on:
   push:
@@ -133,13 +133,113 @@ jobs:
           name: IBMC-Setup-x64
           path: windows/build/installer/IBMC-Setup-x64.exe
 
+  android:
+    runs-on: ubuntu-latest
+    env:
+      KEYSTORE: ${{ secrets.IBMC_KEYSTORE }}
+      STORE_PASSWORD: ${{ secrets.IBMC_STORE_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Install the SDK, NDK and CMake the app needs
+        working-directory: android
+        run: |
+          ndk=$(sed -n 's/.*ndkVersion = "\(.*\)".*/\1/p' app/build.gradle.kts)
+          sdk=$(sed -n 's/.*compileSdk = \([0-9]*\).*/\1/p' app/build.gradle.kts)
+          cmake=$(sed -n 's/.*version = "\(4[^"]*\)".*/\1/p' app/build.gradle.kts | head -1)
+          yes | sdkmanager --licenses > /dev/null || true
+          sdkmanager "platforms;android-$sdk" "build-tools;36.0.0" "ndk;$ndk" "cmake;$cmake" > /dev/null || sdkmanager --list | grep -E "platforms;android-|ndk;|cmake;" | tail -20
+
+      - name: Fetch the native libraries
+        working-directory: android
+        run: bash tools/fetch-native.sh
+
+      - name: Signing key
+        run: |
+          if [ -n "$KEYSTORE" ]; then
+            echo "$KEYSTORE" | base64 -d > "$RUNNER_TEMP/ibmc.jks"
+            pass="$STORE_PASSWORD"
+          else
+            echo "::warning::No IBMC_KEYSTORE secret: signing with a temporary key (updates will need uninstalling the old version first)."
+            pass=temporary
+            keytool -genkeypair -keystore "$RUNNER_TEMP/ibmc.jks" -alias ibmc -keyalg RSA -keysize 2048 -validity 10000 \
+              -storepass $pass -keypass $pass -dname "CN=IBMC, C=IQ" > /dev/null
+          fi
+          echo "IBMC_STORE_FILE=$RUNNER_TEMP/ibmc.jks" >> $GITHUB_ENV
+          echo "IBMC_STORE_PASSWORD=$pass" >> $GITHUB_ENV
+          echo "IBMC_KEY_PASSWORD=$pass" >> $GITHUB_ENV
+          echo "IBMC_KEY_ALIAS=ibmc" >> $GITHUB_ENV
+
+      - name: Build the APK
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon assembleRelease -Pibmc.versionCode=${{ github.run_number }} -Pibmc.versionName=2.0.${{ github.run_number }}
+          apk=$(find app/build/outputs/apk/release -name '*.apk' | head -1)
+          cp "$apk" IBMC-Android.apk
+          ls -la IBMC-Android.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: IBMC-Android
+          path: android/IBMC-Android.apk
+
+  ios:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Generate the Xcode project
+        working-directory: ios
+        run: |
+          brew install xcodegen
+          sed -i '' "s/MARKETING_VERSION: \"2.0.0\"/MARKETING_VERSION: \"2.0.${{ github.run_number }}\"/; s/CURRENT_PROJECT_VERSION: \"1\"/CURRENT_PROJECT_VERSION: \"${{ github.run_number }}\"/" project.yml
+          xcodegen generate
+
+      - name: Build without signing
+        working-directory: ios
+        run: |
+          xcodebuild -project IBMC.xcodeproj -scheme IBMC -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' \
+            -derivedDataPath build CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" build | tail -60
+          test -d build/Build/Products/Release-iphoneos/IBMC.app
+
+      - name: Package the IPA
+        working-directory: ios
+        run: |
+          mkdir -p Payload
+          cp -R build/Build/Products/Release-iphoneos/IBMC.app Payload/
+          zip -qry IBMC-iOS-unsigned.ipa Payload
+          ls -la IBMC-iOS-unsigned.ipa
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: IBMC-iOS
+          path: ios/IBMC-iOS-unsigned.ipa
+
+  release:
+    needs: [build, android, ios]
+    if: always() && needs.build.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: out
+          merge-multiple: true
+
       - name: Publish a release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v2.0.${{ github.run_number }}
           name: IBMC — Ibrahim Multimedia Converter 2.0.${{ github.run_number }}
           make_latest: true
-          files: windows/build/installer/IBMC-Setup-x64.exe
+          files: out/*
           body: |
             IBMC — Ibrahim Multimedia Converter — نسخة مطوّرة من [أدوات](https://github.com/motalim-ai/adawat) (GPL v3).
-            حمّل **IBMC-Setup-x64.exe** وشغّله. إذا طلع تحذير Windows: More info ← Run anyway.
+            **ويندوز:** IBMC-Setup-x64.exe · **أندرويد:** IBMC-Android.apk · **آيفون (بدون توقيع):** IBMC-iOS-unsigned.ipa

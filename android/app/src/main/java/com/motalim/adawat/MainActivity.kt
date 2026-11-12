@@ -90,9 +90,9 @@ private fun Home(onFiles: (List<Uri>) -> Unit, onLanguage: (String) -> Unit) {
             Modifier.fillMaxSize().systemBarsPadding().verticalScroll(rememberScrollState()).padding(horizontal = 24.dp, vertical = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text(L10n.t("Adawat"), style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.onBackground)
+            Text("IBMC", style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.onBackground)
             Spacer(Modifier.height(6.dp))
-            Text(L10n.t("Share any file to Adawat"), style = MaterialTheme.typography.bodyLarge, color = Look.Muted)
+            Text(L10n.t("Share any file to IBMC"), style = MaterialTheme.typography.bodyLarge, color = Look.Muted)
             Spacer(Modifier.height(18.dp))
             Wheel(sample, L10n.upper(L10n.t("Convert")), size = 260.dp, enabled = false, initiallyHovered = 1)
             Spacer(Modifier.height(20.dp))
@@ -100,14 +100,16 @@ private fun Home(onFiles: (List<Uri>) -> Unit, onLanguage: (String) -> Unit) {
                 Text(L10n.t("Choose Files"), fontSize = 16.sp)
             }
             Spacer(Modifier.height(24.dp))
-            Step(1, "Share any file to Adawat", "In any app, tap Share and choose Adawat. Or open a file with Adawat.")
+            Step(1, "Share any file to IBMC", "In any app, tap Share and choose IBMC. Or open a file with IBMC.")
             Step(2, "Pick Convert, Tools or Actions", "Tap the label in the middle, or the tabs under the wheel.")
-            Step(3, "Tap a petal, or slide your finger to it and let go", "Results are saved in an Adawat folder in Pictures, Movies, Music or Download.")
+            Step(3, "Tap a petal, or slide your finger to it and let go", "Results are saved in an IBMC folder in Pictures, Movies, Music or Download.")
             Spacer(Modifier.height(12.dp))
             Text(L10n.t("Everything happens on this phone. No file leaves it unless you share it."),
                  style = MaterialTheme.typography.bodySmall, color = Look.Muted)
             Spacer(Modifier.height(24.dp))
             LanguagePicker(onLanguage)
+            Spacer(Modifier.height(28.dp))
+            About()
         }
     }
 }
@@ -146,3 +148,30 @@ private fun LanguagePicker(onLanguage: (String) -> Unit) {
     }
 }
 
+
+
+/** حول: who made IBMC and where to follow. */
+@Composable
+private fun About() {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    fun open(url: String) = runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url))) }
+    Column(
+        Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(Look.AccentSoft).padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(if (L10n.isArabic) "حول" else "About", style = MaterialTheme.typography.titleSmall, color = Look.Accent, fontWeight = FontWeight.Bold)
+        Spacer(Modifier.height(6.dp))
+        Text("IBMC — Ibrahim Multimedia Converter", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onBackground)
+        Text("برمجة وتطوير ابراهيم الخزرجي", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onBackground)
+        Spacer(Modifier.height(10.dp))
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Text("Telegram", color = Color.White, modifier = Modifier.clip(RoundedCornerShape(50)).background(Color(0xFF229ED9))
+                .clickable { open("https://t.me/ibraprogram") }.padding(horizontal = 16.dp, vertical = 8.dp))
+            Text("TikTok", color = Color.White, modifier = Modifier.clip(RoundedCornerShape(50)).background(Color(0xFF111111))
+                .clickable { open("https://www.tiktok.com/@ibraprogram") }.padding(horizontal = 16.dp, vertical = 8.dp))
+        }
+        Spacer(Modifier.height(6.dp))
+        Text("t.me/ibraprogram · TikTok: ibraprogram", style = MaterialTheme.typography.bodySmall, color = Look.Muted)
+        Text("Based on Adawat by Motalim · GPL v3", style = MaterialTheme.typography.bodySmall, color = Look.Muted)
+    }
+}

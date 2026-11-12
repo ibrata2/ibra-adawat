@@ -19,13 +19,13 @@ import com.motalim.adawat.core.L10n
 
 /** The app's colours and type, the same as the desktop apps. */
 object Look {
-    val Accent = Color(0xFF5B47E6)
-    val AccentPressed = Color(0xFF4836C4)
-    val AccentSoft = Color(0x265B47E6)
-    val Mint = Color(0xFF7CF2C8)
+    val Accent = Color(0xFFE3192B)
+    val AccentPressed = Color(0xFFB81020)
+    val AccentSoft = Color(0x26E3192B)
+    val Mint = Color(0xFFFF5A66)
     val Ink = Color(0xFF282B29)
     val Muted = Color(0xFF757575)
-    val Surface = Color(0xFFFAFAFB)
+    val Surface = Color(0xFFFBF7F8)
     val PetalFill = Color(0xF0F8F9FA)
     val PetalStroke = Color(0x385D6666)
     val Disc = Color(0xB8EEF0F2)
@@ -46,7 +46,7 @@ object Look {
 @Composable
 fun AdawatTheme(content: @Composable () -> Unit) {
     val dark = isSystemInDarkTheme()
-    val colors = if (dark) darkColorScheme(primary = Color(0xFF9C8FFF), onPrimary = Color.White, secondary = Look.Mint)
+    val colors = if (dark) darkColorScheme(primary = Color(0xFFFF4D5C), onPrimary = Color.White, secondary = Look.Mint)
                  else lightColorScheme(primary = Look.Accent, onPrimary = Color.White, secondary = Look.Mint, background = Look.Surface, surface = Look.Surface)
     val base = Typography()
     val family = Look.font

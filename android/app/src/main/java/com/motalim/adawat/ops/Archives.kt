@@ -70,11 +70,11 @@ object ArchiveOps {
         folder.mkdirs()
         // The real path: /data/user/0 is itself a link, and links on the way are refused.
         val problem = ArchiveNative.extract(file.path, folder.canonicalPath, stem(file), null) ?: return
-        android.util.Log.w("Adawat", "libarchive could not extract ${file.name}: $problem")
+        android.util.Log.w("IBMC", "libarchive could not extract ${file.name}: $problem")
         folder.deleteRecursively()
         throw AdawatException(when (problem) {
             "EMPTY" -> "The source archive is empty."
-            else -> "This archive is encrypted or uses a format Adawat cannot open."
+            else -> "This archive is encrypted or uses a format IBMC cannot open."
         })
     }
 
