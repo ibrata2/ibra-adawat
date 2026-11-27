@@ -212,6 +212,11 @@ jobs:
           brew install xcodegen
           sed -i '' "s/MARKETING_VERSION: \"2.0.0\"/MARKETING_VERSION: \"2.0.${{ github.run_number }}\"/; s/CURRENT_PROJECT_VERSION: \"1\"/CURRENT_PROJECT_VERSION: \"${{ github.run_number }}\"/" project.yml
           xcodegen generate
+          # The newest ONNX Runtime whose iPhone package can actually be downloaded.
+          for v in 1.24.4 1.24.0 1.23.2 1.23.0 1.22.0 1.21.0 1.20.0; do
+            if curl -sfIL -o /dev/null "https://download.onnxruntime.ai/pod-archive-onnxruntime-c-$v.zip"; then export ORT_VERSION=$v; break; fi
+          done
+          echo "ONNX Runtime $ORT_VERSION"
           pod install --repo-update
 
       - name: Build without signing
