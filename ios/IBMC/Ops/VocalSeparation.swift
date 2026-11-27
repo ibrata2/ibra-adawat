@@ -1,32 +1,22 @@
 import Foundation
 import AVFoundation
 import Accelerate
-#if canImport(OnnxRuntimeBindings)
-import OnnxRuntimeBindings
-#elseif canImport(onnxruntime_objc)
-import onnxruntime_objc
-#endif
+import CoreML
 
 /// Splits a song into the singer's voice and the music with MDX-Net ("UVR-MDX-NET-Voc_FT" from Ultimate Vocal Remover, MIT),
 /// the same model and steps as IBMC for Windows. The model predicts the voice; the music is the original minus the voice.
-/// The 66 MB model downloads once, then everything runs on the phone.
+/// The model is converted to Core ML when the app is built and ships inside it, so everything runs on the phone, offline,
+/// on the Neural Engine or graphics when Core ML can and on the CPU otherwise.
 enum VocalSeparation {
     enum Part { case vocals, music }
 
-    private static let modelURL = URL(string: "https://github.com/TRvlvr/model_repo/releases/download/all_public_uvr_models/UVR-MDX-NET-Voc_FT.onnx")!
     private static let rate = 44100.0
     private static let nFft = 7680, hop = 1024, dimF = 3072, dimT = 256
     private static let compensate: Float = 1.021
     private static let chunk = hop * (dimT - 1), trim = nFft / 2, gen = chunk - 2 * (nFft / 2)
 
-    private static var modelPath: URL {
-        let folder = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("models", isDirectory: true)
-        try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
-        return folder.appendingPathComponent("UVR-MDX-NET-Voc_FT.onnx")
-    }
-
     static func run(_ files: [URL], part: Part, report: Report) async throws -> [URL] {
-        try await Model.shared.prepare(report: report)
+        try await Model.shared.prepare()
         var outputs: [URL] = []
         for (index, file) in files.enumerated() {
             let base = Double(index) / Double(files.count)
@@ -59,58 +49,71 @@ enum VocalSeparation {
     /// One loaded model for the whole app; separations run one at a time.
     private actor Model {
         static let shared = Model()
-        private var env: ORTEnv?
-        private var session: ORTSession?
-        private var fast = false
+        private var model: MLModel?
+        private var shape: [NSNumber] = [1, 4, NSNumber(value: dimF), NSNumber(value: dimT)]
 
-        func prepare(report: Report) async throws {
-            if session != nil { return }
-            if !FileManager.default.fileExists(atPath: modelPath.path) {
-                report.status(L.t("Downloading the voice separation model (one time only)", "جاري تنزيل نموذج فصل الصوت (مرة وحدة بس)"))
-                let (temporary, response) = try await URLSession.shared.download(from: modelURL)
-                guard (response as? HTTPURLResponse)?.statusCode == 200 else {
-                    throw OpError("Download failed. Check the internet connection.", "فشل التنزيل. تأكد من الإنترنت.")
-                }
-                try? FileManager.default.removeItem(at: modelPath)
-                try FileManager.default.moveItem(at: temporary, to: modelPath)
+        func prepare() throws {
+            if model != nil { return }
+            guard let url = Bundle.main.url(forResource: "VocalModel", withExtension: "mlmodelc") else {
+                throw OpError("The voice model is missing. Reinstall IBMC.", "نموذج الصوت ناقص. نزّل IBMC من جديد.")
             }
-            let env = try ORTEnv(loggingLevel: .warning)
-            self.env = env
-            // Core ML (the Neural Engine and graphics) when it takes the model; the CPU otherwise.
-            if let options = try? ORTSessionOptions() {
-                _ = try? options.setGraphOptimizationLevel(.all)
-                if (try? options.appendCoreMLExecutionProvider(with: ORTCoreMLExecutionProviderOptions())) != nil,
-                   let accelerated = try? ORTSession(env: env, modelPath: modelPath.path, sessionOptions: options) {
-                    session = accelerated
-                    fast = true
-                    return
-                }
-            }
-            session = try cpu(env)
+            let configuration = MLModelConfiguration()
+            configuration.computeUnits = .all
+            model = try MLModel(contentsOf: url, configuration: configuration)
         }
 
-        private func cpu(_ env: ORTEnv) throws -> ORTSession {
-            let options = try ORTSessionOptions()
-            try options.setGraphOptimizationLevel(.all)
-            try options.setIntraOpNumThreads(Int32(max(ProcessInfo.processInfo.activeProcessorCount, 1)))
-            fast = false
-            return try ORTSession(env: env, modelPath: modelPath.path, sessionOptions: options)
+        private func cpuOnly() throws {
+            guard let url = Bundle.main.url(forResource: "VocalModel", withExtension: "mlmodelc") else { return }
+            let configuration = MLModelConfiguration()
+            configuration.computeUnits = .cpuOnly
+            model = try MLModel(contentsOf: url, configuration: configuration)
         }
 
-        private func infer(_ input: inout [Float]) throws -> [Float] {
-            let shape: [NSNumber] = [1, 4, NSNumber(value: dimF), NSNumber(value: dimT)]
-            let data = input.withUnsafeMutableBytes { NSMutableData(bytes: $0.baseAddress!, length: $0.count) }
-            let value = try ORTValue(tensorData: data, elementType: .float, shape: shape)
+        private func infer(_ input: inout [Float], retry: Bool = true) throws -> [Float] {
+            let array = try MLMultiArray(shape: shape, dataType: .float32)
+            input.withUnsafeBufferPointer { source in
+                array.withUnsafeMutableBufferPointer(ofType: Float.self) { target, _ in
+                    target.baseAddress!.update(from: source.baseAddress!, count: source.count)
+                }
+            }
             do {
-                let results = try session!.run(withInputs: ["input": value], outputNames: ["output"], runOptions: nil)
-                guard let output = results["output"] else { throw OpError("The voice model gave no result", "نموذج الصوت ما رجع نتيجة") }
-                let bytes = try output.tensorData() as Data
-                return bytes.withUnsafeBytes { Array($0.bindMemory(to: Float.self)) }
-            } catch where fast {
-                // Core ML gave up on this model: carry on with the CPU.
-                session = try cpu(env!)
-                return try infer(&input)
+                let result = try model!.prediction(from: MLDictionaryFeatureProvider(dictionary: ["input": MLFeatureValue(multiArray: array)]))
+                guard let output = result.featureValue(for: "output")?.multiArrayValue else {
+                    throw OpError("The voice model gave no result", "نموذج الصوت ما رجع نتيجة")
+                }
+                let values = Self.floats(output)
+                if retry, values.contains(where: { !$0.isFinite }) { throw OpError("Bad numbers", "أرقام غلط") }
+                return values
+            } catch where retry {
+                // The fast path gave up or gave nonsense: carry on with the CPU.
+                try cpuOnly()
+                return try infer(&input, retry: false)
             }
+        }
+
+        /// The output in plain [channel][frequency][time] order, whatever its strides or number type.
+        private static func floats(_ array: MLMultiArray) -> [Float] {
+            let count = 4 * dimF * dimT
+            var values = [Float](repeating: 0, count: count)
+            let strides = array.strides.map(\.intValue)
+            let contiguous = strides == [count, dimF * dimT, dimT, 1]
+            switch array.dataType {
+            case .float32 where contiguous:
+                array.withUnsafeBufferPointer(ofType: Float.self) { source in
+                    values.withUnsafeMutableBufferPointer { target in target.baseAddress!.update(from: source.baseAddress!, count: count) }
+                }
+            default:
+                var at = 0
+                for c in 0..<4 {
+                    for f in 0..<dimF {
+                        for t in 0..<dimT {
+                            values[at] = array[[0, c, f, t] as [NSNumber]].floatValue
+                            at += 1
+                        }
+                    }
+                }
+            }
+            return values
         }
 
         func separate(_ left: [Float], _ right: [Float], progress: @escaping (Double) -> Void) throws -> ([Float], [Float]) {
@@ -167,14 +170,7 @@ enum VocalSeparation {
                     }
                 }
 
-                var spec = try infer(&input)
-                if fast {
-                    // UVR's "denoise": average with the negated prediction of the negated input.
-                    var negative = input.map { -$0 }
-                    let second = try infer(&negative)
-                    for i in 0..<spec.count { spec[i] = (spec[i] - second[i]) * 0.5 }
-                }
-
+                let spec = try infer(&input)
                 var frames = [[Double]](repeating: [], count: dimT)
                 spec.withUnsafeBufferPointer { s in
                     frames.withUnsafeMutableBufferPointer { f in

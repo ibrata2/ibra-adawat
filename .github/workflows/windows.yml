@@ -206,23 +206,46 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      # The voice separation model (UVR MDX-Net, ONNX) becomes a Core ML model that ships inside the app.
+      - uses: actions/cache@v4
+        id: voicemodel
+        with:
+          path: ios/IBMC/Resources/VocalModel.mlpackage
+          key: vocalmodel-voc-ft-fp32-v1
+
+      - uses: actions/setup-python@v5
+        if: steps.voicemodel.outputs.cache-hit != 'true'
+        with:
+          python-version: "3.12"
+
+      - name: Convert the voice model to Core ML
+        if: steps.voicemodel.outputs.cache-hit != 'true'
+        run: |
+          pip install -q torch onnx onnx2torch coremltools
+          curl -sfL -o voc.onnx https://github.com/TRvlvr/model_repo/releases/download/all_public_uvr_models/UVR-MDX-NET-Voc_FT.onnx
+          mkdir -p ios/IBMC/Resources
+          python - <<'PY'
+          import torch, onnx, onnx2torch, coremltools as ct
+          model = onnx2torch.convert(onnx.load("voc.onnx")).eval()
+          with torch.no_grad():
+              traced = torch.jit.trace(model, torch.zeros(1, 4, 3072, 256), check_trace=False)
+          ml = ct.convert(traced, inputs=[ct.TensorType(name="input", shape=(1, 4, 3072, 256))], outputs=[ct.TensorType(name="output")],
+                          convert_to="mlprogram", compute_precision=ct.precision.FLOAT32, minimum_deployment_target=ct.target.iOS17)
+          ml.save("ios/IBMC/Resources/VocalModel.mlpackage")
+          PY
+          du -sh ios/IBMC/Resources/VocalModel.mlpackage
+
       - name: Generate the Xcode project
         working-directory: ios
         run: |
           brew install xcodegen
           sed -i '' "s/MARKETING_VERSION: \"2.0.0\"/MARKETING_VERSION: \"2.0.${{ github.run_number }}\"/; s/CURRENT_PROJECT_VERSION: \"1\"/CURRENT_PROJECT_VERSION: \"${{ github.run_number }}\"/" project.yml
           xcodegen generate
-          # The newest ONNX Runtime whose iPhone package can actually be downloaded.
-          for v in 1.24.4 1.24.0 1.23.2 1.23.0 1.22.0 1.21.0 1.20.0; do
-            if curl -sfIL -o /dev/null "https://download.onnxruntime.ai/pod-archive-onnxruntime-c-$v.zip"; then export ORT_VERSION=$v; break; fi
-          done
-          echo "ONNX Runtime $ORT_VERSION"
-          pod install --repo-update
 
       - name: Build without signing
         working-directory: ios
         run: |
-          xcodebuild -workspace IBMC.xcworkspace -scheme IBMC -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' \
+          xcodebuild -project IBMC.xcodeproj -scheme IBMC -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' \
             -derivedDataPath build CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" build | tail -60
           test -d build/Build/Products/Release-iphoneos/IBMC.app
 
