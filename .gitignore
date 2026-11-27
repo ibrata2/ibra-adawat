@@ -11,3 +11,6 @@ obj/
 
 # Linux build output
 linux/build/
+ios/Pods/
+ios/Podfile.lock
+ios/IBMC.xcworkspace/

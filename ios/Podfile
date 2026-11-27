@@ -1,0 +1,16 @@
+# ONNX Runtime runs the voice separation model. The project itself comes from project.yml (XcodeGen).
+platform :ios, '17.0'
+
+target 'IBMC' do
+  use_frameworks! :linkage => :static
+  pod 'onnxruntime-objc', '~> 1.20'
+end
+
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    target.build_configurations.each do |config|
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '17.0'
+      config.build_settings['CODE_SIGNING_ALLOWED'] = 'NO'
+    end
+  end
+end

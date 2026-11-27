@@ -212,11 +212,12 @@ jobs:
           brew install xcodegen
           sed -i '' "s/MARKETING_VERSION: \"2.0.0\"/MARKETING_VERSION: \"2.0.${{ github.run_number }}\"/; s/CURRENT_PROJECT_VERSION: \"1\"/CURRENT_PROJECT_VERSION: \"${{ github.run_number }}\"/" project.yml
           xcodegen generate
+          pod install --repo-update
 
       - name: Build without signing
         working-directory: ios
         run: |
-          xcodebuild -project IBMC.xcodeproj -scheme IBMC -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' \
+          xcodebuild -workspace IBMC.xcworkspace -scheme IBMC -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' \
             -derivedDataPath build CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" build | tail -60
           test -d build/Build/Products/Release-iphoneos/IBMC.app
 
