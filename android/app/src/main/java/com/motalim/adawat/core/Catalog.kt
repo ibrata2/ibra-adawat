@@ -5,6 +5,7 @@ import com.motalim.adawat.docs.DocumentTarget
 import com.motalim.adawat.docs.SheetOps
 import com.motalim.adawat.docs.SubtitleOps
 import com.motalim.adawat.media.AudioOps
+import com.motalim.adawat.media.VocalSeparation
 import com.motalim.adawat.media.MediaFormatChoice
 import com.motalim.adawat.media.MediaTools
 import com.motalim.adawat.media.Visualizer
@@ -165,6 +166,11 @@ object Catalog {
             ops += tool("video.rotate", "Rotate", null, Icons.Rotate, VideoOps::rotate)
             ops += tool("video.mute", "Mute", null, Icons.Mute, VideoOps::mute)
             ops += tool("video.normalize", "Normalize Volume", "Normalize", Icons.Volume, VideoOps::normalize, if (single) "normalize" else null)
+        }
+
+        if (kinds.isNotEmpty() && kinds.all { it == FileKind.Audio || it == FileKind.Video }) {
+            ops += tool("ibra.vocals", "Separate the Singer's Voice", "Vocals", Icons.Audio, VocalSeparation::vocals)
+            ops += tool("ibra.karaoke", "Music Without Vocals", "Karaoke", Icons.Volume, VocalSeparation::music)
         }
 
         if (kinds == setOf(FileKind.Audio)) {

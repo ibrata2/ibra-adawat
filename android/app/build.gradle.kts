@@ -74,6 +74,7 @@ dependencies {
     implementation(libs.androidx.print)
     implementation(libs.androidx.documentfile)
     implementation(libs.zxing.core)
+    implementation(libs.onnxruntime.android)
     implementation(libs.tesseract)
     implementation(libs.pdfbox)
     implementation(libs.media3.transformer)

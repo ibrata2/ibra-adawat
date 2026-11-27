@@ -12,3 +12,6 @@
 
 # ZXing reads its readers by reflection in a few places.
 -keep class com.google.zxing.** { *; }
+
+# ONNX Runtime calls into its Java classes from native code.
+-keep class ai.onnxruntime.** { *; }

@@ -76,6 +76,10 @@ enum Catalog {
                 try await SpeechOps.transcribe(f, locale: "ar-SA", report: r) },
             Tool(id: "a.speech.en", english: "Speech to Text (English)", arabic: "الكلام إلى نص (إنجليزي)", symbol: "captions.bubble", kinds: [.audio]) { f, r in
                 try await SpeechOps.transcribe(f, locale: "en-US", report: r) },
+            Tool(id: "a.vocals", english: "Separate the Singer's Voice", arabic: "فصل صوت المغني", symbol: "music.mic", kinds: [.audio, .video]) { f, r in
+                try await VocalSeparation.run(f, part: .vocals, report: r) },
+            Tool(id: "a.karaoke", english: "Music Without Vocals", arabic: "موسيقى بدون صوت (كاريوكي)", symbol: "music.note.list", kinds: [.audio, .video]) { f, r in
+                try await VocalSeparation.run(f, part: .music, report: r) },
             Tool(id: "a.noai", english: "Remove AI Info", arabic: "إزالة معلومات الذكاء الاصطناعي", symbol: "eye.slash", kinds: [.audio]) { f, r in
                 try await AiInfo.remove(f, report: r) },
             Tool(id: "a.aicheck", english: "Check for AI Info", arabic: "فحص معلومات الذكاء الاصطناعي", symbol: "magnifyingglass", kinds: [.audio]) { f, r in
