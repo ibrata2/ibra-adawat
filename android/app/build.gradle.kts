@@ -13,7 +13,7 @@ android {
         targetSdk = 37
         versionCode = (providers.gradleProperty("ibmc.versionCode").orNull ?: "1").toInt()
         versionName = providers.gradleProperty("ibmc.versionName").orNull ?: "2.0.0"
-        ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a", "x86_64") }
+        ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a") }
     }
 
     // The upload key stays outside the repository: its path and passwords come from ~/.gradle/gradle.properties
