@@ -185,5 +185,7 @@ The Windows build also bundles or downloads on first use:
 - **yt-dlp** (Unlicense) — download from a link, https://github.com/yt-dlp/yt-dlp
 - **Real-ESRGAN ncnn Vulkan** (BSD-3-Clause) — AI enlarge, https://github.com/xinntao/Real-ESRGAN
 - **IS-Net / DIS** (Apache 2.0), ONNX export from rembg — background removal, downloads on first use, https://github.com/xuebinqin/DIS
+- **UVR-MDX-NET-Voc_FT** (MIT), from Ultimate Vocal Remover — separating the singer's voice from the music, downloads on first use, https://github.com/Anjok07/ultimatevocalremovergui
+- **ONNX Runtime DirectML** (MIT) — runs the voice model on the graphics card, https://github.com/microsoft/onnxruntime
 - **ONNX Runtime** (MIT) — https://github.com/microsoft/onnxruntime
 - **MyMemory** translation API — online translation of subtitles to languages other than English, https://mymemory.translated.net

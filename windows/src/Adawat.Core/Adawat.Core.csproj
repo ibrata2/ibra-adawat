@@ -20,16 +20,18 @@
     <PackageReference Include="SharpCompress" Version="1.0.0" />
     <PackageReference Include="QRCoder" Version="1.8.1" />
     <PackageReference Include="ZXing.Net" Version="0.16.11" />
-    <PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.31.0" />
   </ItemGroup>
   <ItemGroup Condition="$(TargetFramework.Contains('-windows'))">
     <PackageReference Include="PDFtoImage" Version="5.4.0" />
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4258.31" />
+    <!-- ONNX Runtime with DirectML: voice separation runs on any DirectX 12 graphics card, with the CPU as fallback. -->
+    <PackageReference Include="Microsoft.ML.OnnxRuntime.DirectML" Version="1.24.4" />
     <Compile Remove="Platform/Linux/**" />
   </ItemGroup>
   <ItemGroup Condition="!$(TargetFramework.Contains('-windows'))">
     <!-- 5.2 is the last PDFtoImage on SkiaSharp 3, which Avalonia 12 draws with; 5.3 moved to SkiaSharp 4. -->
     <PackageReference Include="PDFtoImage" Version="5.2.1" />
+    <PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.31.0" />
     <Compile Remove="Platform/Windows/**" />
   </ItemGroup>
   <ItemGroup>

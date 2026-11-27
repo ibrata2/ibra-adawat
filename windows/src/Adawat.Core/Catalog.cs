@@ -20,7 +20,8 @@ public static class Catalog
             Bleep = "", Silence = "", Share = "", Float = "", Copy = "", Move = "",
             Path = "", Terminal = "", Extract = "", Folder = "",
             Speech = "\uE720", Stamp = "\uE8EC", Resize = "\uE740", Compare = "\uE8A9", Cutout = "\uE7C5",
-            Sticker = "\uE76E", Upscale = "\uE8A3", Slides = "\uE8B2", Chat = "\uE8BD", Subtitle = "\uE7F0", Story = "\uE8C6";
+            Sticker = "\uE76E", Upscale = "\uE8A3", Slides = "\uE8B2", Chat = "\uE8BD", Subtitle = "\uE7F0", Story = "\uE8C6",
+            Vocals = "\uE720", Karaoke = "\uEC4F";
     }
 
     public static IReadOnlyList<AdawatOperation> For(WheelMode mode, IReadOnlyList<string> files)
@@ -211,6 +212,8 @@ public static class Catalog
             ops.Add(Tool("ibra.whatsapp", "WhatsApp Size", "WhatsApp", Icons.Chat, SocialOps.WhatsApp));
             ops.Add(Tool("ibra.stories", "Cut into Stories", "Stories", Icons.Story, SocialOps.StorySplitQuick, "stories"));
             ops.Add(Tool("ibra.sticker", "WhatsApp Sticker", "Sticker", Icons.Sticker, SocialOps.Sticker));
+            ops.Add(Tool("ibra.vocals", "Separate the Singer's Voice", "Vocals", Icons.Vocals, VocalSeparation.Vocals));
+            ops.Add(Tool("ibra.karaoke", "Music Without Vocals", "Karaoke", Icons.Karaoke, VocalSeparation.Music));
         }
 
         if (kinds.SetEquals([FileKind.Video, FileKind.Subtitle]) && files.Count == 2)
@@ -225,6 +228,8 @@ public static class Catalog
             ops.Add(Tool("audio.metadata", "Remove Metadata", "Metadata", Icons.Metadata, MediaOps.StripMetadata));
             ops.Add(Tool("ibra.noai.audio", "Remove AI Info", "No AI Info", "\uE8F8", AiInfo.RemoveMedia));
             ops.Add(Tool("ibra.aicheck.audio", "Check for AI Info", "AI Check", "\uE721", AiInfo.CheckMedia, producesFiles: false));
+            ops.Add(Tool("ibra.vocals", "Separate the Singer's Voice", "Vocals", Icons.Vocals, VocalSeparation.Vocals));
+            ops.Add(Tool("ibra.karaoke", "Music Without Vocals", "Karaoke", Icons.Karaoke, VocalSeparation.Music));
             ops.Add(Tool("audio.normalize", "Normalize Volume", "Normalize", Icons.Volume, MediaOps.Normalize, single ? "normalize" : null));
             if (single)
             {

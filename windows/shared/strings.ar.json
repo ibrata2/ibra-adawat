@@ -663,5 +663,15 @@
  "No AI information found in this image": "ما لكيت معلومات ذكاء اصطناعي بهاي الصورة",
  "AI information removed": "انشالت معلومات الذكاء الاصطناعي",
  "No AI information was found; saved a clean copy": "ما چانت بيها معلومات ذكاء اصطناعي؛ انحفظت نسخة نظيفة",
- "No AI information found in this file": "ما لكيت معلومات ذكاء اصطناعي بهذا الملف"
+ "No AI information found in this file": "ما لكيت معلومات ذكاء اصطناعي بهذا الملف",
+ "Separate the Singer's Voice": "فصل صوت المغني",
+ "Music Without Vocals": "موسيقى بدون صوت (كاريوكي)",
+ "Vocals": "صوت المغني",
+ "Karaoke": "كاريوكي",
+ "Downloading the voice separation model (one time only)": "جاري تنزيل نموذج فصل الصوت (مرة وحدة بس)",
+ "Saving the voice": "جاري حفظ صوت المغني",
+ "Saving the music": "جاري حفظ الموسيقى",
+ "The singer's voice is ready": "صوت المغني جاهز",
+ "The music without the voice is ready": "الموسيقى بدون صوت جاهزة",
+ "This file has no sound to separate": "هذا الملف ما بيه صوت حتى ينفصل"
 }

@@ -71,6 +71,8 @@ public static class HomeCatalog
             new("audio.bleep", "Bleep", "تصفير أجزاء", "") { Kinds = [FileKind.Audio] },
             new("audio.visualizer", "Audio Visualizer", "فيديو بموجة الصوت", "") { Kinds = [FileKind.Audio] },
             new("ibra.transcribe", "Speech to Text", "الكلام إلى نص", ""),
+            new("ibra.vocals", "Separate the Singer's Voice", "فصل صوت المغني", "\uE720"),
+            new("ibra.karaoke", "Music Without Vocals", "موسيقى بدون صوت (كاريوكي)", "\uEC4F"),
             new("audio.metadata", "Remove Metadata", "حذف البيانات", "") { Kinds = [FileKind.Audio] },
             new("ibra.noai.audio", "Remove AI Info", "إزالة معلومات الذكاء الاصطناعي", "\uE8F8") { Together = true, Kinds = [FileKind.Audio] },
             new("ibra.aicheck.audio", "Check for AI Info", "فحص معلومات الذكاء الاصطناعي", "\uE721") { Together = true, Kinds = [FileKind.Audio] },

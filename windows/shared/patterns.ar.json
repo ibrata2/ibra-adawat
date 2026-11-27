@@ -157,5 +157,9 @@
  "Cleaned {1} of {2}; some information could not be removed": "انظفت {1} من {2}؛ بعض المعلومات ما انشالت",
  "No AI information found in {1} files": "ما لكيت معلومات ذكاء اصطناعي بـ {1} ملفات",
  "AI information found in {1} of {2} files": "لكيت معلومات ذكاء اصطناعي بـ {1} من {2} ملفات",
- "AI information removed from {1} of {2} files": "انشالت معلومات الذكاء الاصطناعي من {1} من {2} ملفات"
+ "AI information removed from {1} of {2} files": "انشالت معلومات الذكاء الاصطناعي من {1} من {2} ملفات",
+ "Separating the voice {1} of {2}": "جاري فصل صوت المغني {1} من {2}",
+ "Removing the voice {1} of {2}": "جاري شيل صوت المغني {1} من {2}",
+ "Separated the voice from {1} files": "انفصل صوت المغني من {1} ملفات",
+ "Removed the voice from {1} files": "انشال صوت المغني من {1} ملفات"
 }
