@@ -62,12 +62,17 @@ public static class Jobs
 
     public static Job Add(AdawatOperation operation, IReadOnlyList<string> files, bool immediate)
     {
+        // Unless "start right away" is on, nothing runs until Start is pressed. Actions (share, copy, move…) are not
+        // conversions and always run at once.
+        var manual = !Settings.Current.StartRightAway && !operation.Id.StartsWith("action.", StringComparison.Ordinal);
+        if (manual) immediate = false;
         var job = new Job(operation, files) { Immediate = immediate };
-        job.Status = L10n.T(immediate ? "Starting…" : "Waiting");
+        job.Status = L10n.T(immediate ? "Starting…" : manual ? "Waiting for Start" : "Waiting");
         All.Add(job);
         QueueChanged?.Invoke();
         if (immediate) _ = Execute(job);
-        else if (Settings.Current.AutoStart) Start();
+        else if (!manual) Start();
+        else if (!HomeWindow.IsShowing) HomeWindow.Present();
         return job;
     }
 

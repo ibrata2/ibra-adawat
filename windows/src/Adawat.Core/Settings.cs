@@ -41,8 +41,10 @@ public sealed class Settings
     public string Style { get; set; } = "glass-red-white";
     /// <summary>The folder results go to when OutputLocation is Custom.</summary>
     public string CustomOutputFolder { get; set; } = "";
-    /// <summary>Tasks added from the main window start right away; off, they wait for Start.</summary>
-    public bool AutoStart { get; set; } = true;
+    /// <summary>Conversions start as soon as they are added (from the main window, a tool window or the right-click menu).
+    /// Off (the default), every task waits in the main window's list until Start is pressed. A new name, so the old
+    /// "AutoStart" saved as true by earlier versions does not carry over.</summary>
+    public bool StartRightAway { get; set; }
     public int HomeSection { get; set; }
     public bool AutoCheckUpdates { get; set; } = true;
     /// <summary>A release tag the user chose to skip; the start-up check stays quiet about it.</summary>

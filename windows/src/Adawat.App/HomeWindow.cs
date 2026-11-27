@@ -31,6 +31,7 @@ public sealed class HomeWindow : Window
     private readonly TextBlock _countText;
     private readonly Button _startButton;
     private readonly Button _stopButton;
+    private readonly CheckBox _autoCheck;
     private List<string> _ready = [];
     private int _open;
     private bool _quitting;
@@ -48,6 +49,9 @@ public sealed class HomeWindow : Window
         _shared.Topmost = true;
         _shared.Topmost = false;
     }
+
+    /// <summary>Updates the open main window after a setting changed elsewhere.</summary>
+    public static void RefreshShared() => _shared?.Refresh();
 
     public static void Quit()
     {
@@ -97,7 +101,7 @@ public sealed class HomeWindow : Window
         left.Children.Add(Separator());
         _stopButton = ToolButton("", T("Stop", "إيقاف"), Jobs.Stop);
         left.Children.Add(_stopButton);
-        _startButton = UI.Button(T("Start", "بدء"), Jobs.Start, primary: true, icon: "");
+        _startButton = UI.Button(T("Start", "ابدأ"), Jobs.Start, primary: true, icon: "");
         _startButton.Margin = new Thickness(4, 0, 4, 0);
         left.Children.Add(_startButton);
         DockPanel.SetDock(left, Dock.Left);
@@ -125,7 +129,13 @@ public sealed class HomeWindow : Window
         _countText = UI.Text("", 11.5, color: Theme.Muted);
         DockPanel.SetDock(_countText, Dock.Right);
         status.Children.Add(_countText);
-        var auto = UI.Check(T("Start tasks right away", "ابدأ المهام فوراً"), Settings.Current.AutoStart, v => { Settings.Current.AutoStart = v; Settings.Current.Save(); Refresh(); });
+        var auto = _autoCheck = UI.Check(T("Start tasks right away", "ابدأ المهام فوراً"), Settings.Current.StartRightAway, v =>
+        {
+            if (Settings.Current.StartRightAway == v) return;
+            Settings.Current.StartRightAway = v;
+            Settings.Current.Save();
+            Refresh();
+        });
         auto.Margin = new Thickness(0, 0, 18, 0);
         DockPanel.SetDock(auto, Dock.Right);
         status.Children.Add(auto);
@@ -628,6 +638,10 @@ public sealed class HomeWindow : Window
             : $"{Jobs.All.Count} tasks · {running} running · {waiting} waiting · {done} done";
         _startButton.IsEnabled = Jobs.AnyWaiting;
         _stopButton.IsEnabled = Jobs.AnyRunning;
+        if (_autoCheck.IsChecked != Settings.Current.StartRightAway) _autoCheck.IsChecked = Settings.Current.StartRightAway;
+        _startButton.ToolTip = Jobs.AnyWaiting
+            ? T($"Start the {Jobs.All.Count(j => j.State == JobState.Waiting)} waiting tasks", $"ابدأ {Jobs.All.Count(j => j.State == JobState.Waiting)} مهام بالانتظار")
+            : null;
         var folder = OutputFolder();
         _outputText.Text = (L10n.IsArabic ? "مجلد الإخراج: " : "Output: ") + (folder.Length > 0 ? folder : T("next to each original", "جنب كل ملف أصلي"));
     }

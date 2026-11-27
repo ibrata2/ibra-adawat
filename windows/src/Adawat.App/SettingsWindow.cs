@@ -65,6 +65,10 @@ public static class SettingsWindow
         stack.Children.Add(UI.Divider());
 
         Section("General");
+        stack.Children.Add(UI.Check(L10n.IsArabic ? "ابدأ التحويل فوراً (بدون الضغط على «ابدأ»)" : "Start converting right away (without pressing Start)",
+                                    settings.StartRightAway, v => { settings.StartRightAway = v; Save(); HomeWindow.RefreshShared(); }).Pad(0, 4));
+        stack.Children.Add(UI.Text(L10n.IsArabic ? "إذا مطفية، كل مهمة تنتظر بقائمة المهام لحد ما تضغط «ابدأ»." : "When off, every task waits in the task list until you press Start.",
+                                   11.5, color: Theme.Muted, wrap: true).Pad(0, 2));
         stack.Children.Add(UI.Check("Start IBMC when Windows starts", Startup.IsEnabled, Startup.Set).Pad(0, 4));
         var restart = UI.Button("Restart Now", () =>
         {
